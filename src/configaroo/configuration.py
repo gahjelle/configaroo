@@ -7,7 +7,6 @@ from collections import UserDict
 from pathlib import Path
 from typing import Any, Self, Type
 
-import dotenv
 from pydantic import BaseModel
 
 from configaroo import loaders
@@ -92,27 +91,21 @@ class Configuration(UserDict):
     def add(self, key: str, value: Any) -> Self:
         """Add a value, allow dotted keys"""
         prefix, _, rest = key.partition(".")
-        if rest:
-            cls = type(self)
-            return self | {prefix: cls(self.setdefault(prefix, {})).add(rest, value)}
-        else:
+        if not rest:
             return self | {key: value}
+        cls = type(self)
+        return self | {prefix: cls(self.setdefault(prefix, {})).add(rest, value)}
 
-    def add_envs(self, envs: dict[str, str], prefix: str = "", use_dotenv=True) -> Self:
+    def add_envs(self, envs: dict[str, str], prefix: str = "") -> Self:
         """Add environment variables to configuration"""
-        if use_dotenv:
-            dotenv.load_dotenv()
-
         for env, key in envs.items():
             env_key = f"{prefix}{env}"
-            env_value = os.getenv(env_key)
-            if env_value:
+            if env_value := os.getenv(env_key):
                 self = self.add(key, env_value)
-            else:
-                if key not in self:
-                    raise MissingEnvironmentVariableError(
-                        f"required environment variable '{env_key}' not found"
-                    )
+            elif key not in self:
+                raise MissingEnvironmentVariableError(
+                    f"required environment variable '{env_key}' not found"
+                )
         return self
 
     def parse_dynamic(self, extra: dict[str, Any] | None = None) -> Self:
