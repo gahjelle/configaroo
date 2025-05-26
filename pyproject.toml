@@ -37,6 +37,7 @@ changelog = "https://github.com/gahjelle/configaroo/blob/main/CHANGELOG.md"
 
 [dependency-groups]
 dev = [
+    "bumpver>=2024.1130",
     "ipython>=8.36.0",
     "pytest>=8.3.5",
     "ruff>=0.11.11",
@@ -46,3 +47,16 @@ dev = [
 
 [tool.setuptools.dynamic]
 version = { attr = "configaroo.__version__" }
+
+[tool.bumpver]
+current_version = "0.1.0"
+version_pattern = "MAJOR.MINOR.PATCH"
+commit_message  = "bump version {old_version} -> {new_version}"
+tag_message     = "v{new_version}"
+commit          = true
+tag             = true
+push            = false
+
+[tool.bumpver.file_patterns]
+"pyproject.toml"             = ['current_version = "{version}"']
+"src/configaroo/__init__.py" = ['__version__ = "{version}"']
