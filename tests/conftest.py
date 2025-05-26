@@ -3,7 +3,6 @@
 import json
 from pathlib import Path
 from types import ModuleType
-from typing import Any
 
 import pydantic
 import pytest
