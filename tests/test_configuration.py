@@ -1,8 +1,16 @@
 """Test base Configuration functionality"""
 
+from pathlib import Path
+
 import pytest
 
-from configaroo import Configuration
+from configaroo import Configuration, configuration
+
+
+@pytest.fixture
+def file_path():
+    """The path to the current file"""
+    return Path(__file__).resolve()
 
 
 def test_read_simple_values_as_attributes(config):
@@ -93,18 +101,68 @@ def test_contains_with_dotted_key(config):
     assert "nested.number" not in config
 
 
-def test_parse_dynamic_default(config):
+def test_parse_dynamic_default(config, file_path):
     """Test parsing of default dynamic variables"""
-    parsed_config = config.parse_dynamic()
-    assert parsed_config.paths.dynamic == __file__
+    parsed_config = (config | {"diameter": "2 x {nested.pie}"}).parse_dynamic()
+    print("pyproject.toml dir: ", configuration._find_pyproject_toml(file_path))
+    print(f"{parsed_config.paths.dynamic = }")
+    assert parsed_config.paths.dynamic == str(file_path)
     assert parsed_config.phrase == "The meaning of life is 42"
+    assert parsed_config.diameter == "2 x 3.14"
 
 
-def test_parse_dynamic_extra(config):
+def test_parse_dynamic_extra(config, file_path):
     """Test parsing of extra dynamic variables"""
-    parsed_config = (config | {"animal": "{adjective} platypus"}).parse_dynamic(
-        extra={"number": 14, "adjective": "tall"}
+    parsed_config = (config | {"animal": "{adjective} kangaroo"}).parse_dynamic(
+        extra={"number": 14, "adjective": "bouncy"}
     )
-    assert parsed_config.paths.dynamic == __file__
+    assert parsed_config.paths.dynamic == str(file_path)
     assert parsed_config.phrase == "The meaning of life is 14"
-    assert parsed_config.animal == "tall platypus"
+    assert parsed_config.animal == "bouncy kangaroo"
+
+
+def test_parse_dynamic_formatted(config):
+    """Test that formatting works for dynamic variables"""
+    parsed_config = (
+        config
+        | {
+            "string": "Hey {word!r}",
+            "three": "->{nested.pie:6.0f}<-",
+            "centered": "|{word:^12}|",
+        }
+    ).parse_dynamic()
+    assert parsed_config.centered == "|  platypus  |"
+    assert parsed_config.three == "->     3<-"
+    assert parsed_config.string == "Hey 'platypus'"
+
+
+def test_parse_dynamic_ignore(config):
+    """Test that parsing of dynamic variables ignores unknown replacements"""
+    parsed_config = (
+        config
+        | {
+            "animal": "{adjective} kangaroo",
+            "phrase": "one {nested.non_existent} dollar",
+        }
+    ).parse_dynamic()
+    assert parsed_config.animal == "{adjective} kangaroo"
+    assert parsed_config.phrase == "one {nested.non_existent} dollar"
+
+
+def test_find_pyproject_toml():
+    """Test that the pyproject.toml file can be located"""
+    assert configuration._find_pyproject_toml() == Path(__file__).parent.parent
+
+
+def test_find_foreign_caller():
+    """Test that a foreign caller (outside of configaroo) can be identified"""
+    assert configuration._get_foreign_path() == Path(__file__)
+
+
+def test_incomplete_formatter():
+    """Test that the incomplete formatter can handle fields that aren't replaced"""
+    formatted = configuration._incomplete_format(
+        "{number:5.1f} {non_existent} {string!r} {name}",
+        {"number": 3.14, "string": "platypus", "name": "Geir Arne"},
+    )
+    assert formatted == "  3.1 {non_existent} 'platypus' Geir Arne"
