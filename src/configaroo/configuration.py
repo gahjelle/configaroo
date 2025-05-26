@@ -1,6 +1,7 @@
 """A dict-like configuration with support for envvars, validation and type conversion"""
 
 import os
+import re
 from collections import UserDict
 from pathlib import Path
 from typing import Any, Self, Type
@@ -27,7 +28,9 @@ class Configuration(UserDict):
     ) -> Self:
         """Read a Configuration from a file"""
         config_dict = loaders.from_file(file_path, loader=loader)
-        return cls(**config_dict).initialize(envs=envs, model=model)
+        return cls(config_dict).initialize(
+            envs=envs, env_prefix=env_prefix, extra_dynamic=extra_dynamic, model=model
+        )
 
     def initialize(
         self,
@@ -51,7 +54,7 @@ class Configuration(UserDict):
         """Make sure nested sections have type Configuration"""
         value = self.data[key]
         if isinstance(value, dict | UserDict | Configuration):
-            return Configuration(**value)
+            return Configuration(value)
         else:
             return value
 
@@ -76,21 +79,21 @@ class Configuration(UserDict):
 
     def get(self, key: str, default: Any = None) -> Any:
         """Allow dotted keys when using .get()"""
-        if key not in self.data:
-            prefix, _, rest = key.partition(".")
-            try:
-                return self[prefix].get(rest, default=default)
-            except KeyError:
-                return default
-        else:
+        if key in self.data:
             return self[key]
+
+        prefix, _, rest = key.partition(".")
+        try:
+            return self[prefix].get(rest, default=default)
+        except KeyError:
+            return default
 
     def add(self, key: str, value: Any) -> Self:
         """Add a value, allow dotted keys"""
         prefix, _, rest = key.partition(".")
         if rest:
             cls = type(self)
-            return self | {prefix: cls(**self.setdefault(prefix, {})).add(rest, value)}
+            return self | {prefix: cls(self.setdefault(prefix, {})).add(rest, value)}
         else:
             return self | {key: value}
 
@@ -116,15 +119,15 @@ class Configuration(UserDict):
         cls = type(self)
         variables = (
             self.to_flat_dict()
-            | {"project_path": Path(__file__).parent.parent.parent}
+            | {"project_path": _find_pyproject_toml(Path(__file__))}
             | ({} if extra is None else extra)
         )
         return cls(
-            **{
+            {
                 key: (
                     value.parse_dynamic(extra=variables)
                     if isinstance(value, Configuration)
-                    else value.format(**variables)
+                    else _incomplete_format(value, variables)
                     if isinstance(value, str)
                     else value
                 )
@@ -140,7 +143,7 @@ class Configuration(UserDict):
     def convert(self, model: Type[BaseModel]) -> Self:
         """Convert data types to match the given model"""
         cls = type(self)
-        return cls(**model(**self.data).model_dump())
+        return cls(model(**self.data).model_dump())
 
     def to_dict(self) -> dict[str, Any]:
         """Dump the configuration into a Python dictionary"""
@@ -166,3 +169,37 @@ class Configuration(UserDict):
                 self[nested_key].to_flat_dict(_prefix=f"{_prefix}{nested_key}.").items()
             )
         }
+
+
+def _find_pyproject_toml(path: Path, _file_name: str = "pyproject.toml") -> Path:
+    """Find a directory that contains a pyproject.toml file.
+
+    This searches the given directory and all direct parents. If a
+    pyproject.toml file isn't found, then the root of the file system is
+    returned.
+    """
+    if (path / _file_name).exists() or path == path.parent:
+        return path
+    else:
+        return _find_pyproject_toml(path.parent, _file_name=_file_name)
+
+
+def _incomplete_format(text: str, replacers: dict[str, Any]) -> str:
+    """Replace some, but not necessarily all format specifiers in a text string.
+
+    Regular .format() raises an error if not all {replace} parameters are
+    supplied. Here, we only replace the given replace arguments and leave the
+    rest untouched.
+    """
+    dot = "__DOT__"  # Escape . in fields as they have special meaning in .format()
+    pattern = r"({{{word}(?:![ars])?(?:|:[^}}]*)}})"  # Match {word} or {word:...}
+
+    for word, replacement in replacers.items():
+        for match in re.findall(pattern.format(word=word), text):
+            # Split expression to only replace . in the field name
+            field, colon, fmt = match.partition(":")
+            replacer = f"{field.replace('.', dot)}{colon}{fmt}".format(
+                **{word.replace(".", dot): replacement}
+            )
+            text = text.replace(match, replacer)
+    return text

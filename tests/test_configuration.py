@@ -95,16 +95,45 @@ def test_contains_with_dotted_key(config):
 
 def test_parse_dynamic_default(config):
     """Test parsing of default dynamic variables"""
-    parsed_config = config.parse_dynamic()
+    parsed_config = (config | {"diameter": "2 x {nested.pie}"}).parse_dynamic()
     assert parsed_config.paths.dynamic == __file__
     assert parsed_config.phrase == "The meaning of life is 42"
+    assert parsed_config.diameter == "2 x 3.14"
 
 
 def test_parse_dynamic_extra(config):
     """Test parsing of extra dynamic variables"""
-    parsed_config = (config | {"animal": "{adjective} platypus"}).parse_dynamic(
-        extra={"number": 14, "adjective": "tall"}
+    parsed_config = (config | {"animal": "{adjective} kangaroo"}).parse_dynamic(
+        extra={"number": 14, "adjective": "bouncy"}
     )
     assert parsed_config.paths.dynamic == __file__
     assert parsed_config.phrase == "The meaning of life is 14"
-    assert parsed_config.animal == "tall platypus"
+    assert parsed_config.animal == "bouncy kangaroo"
+
+
+def test_parse_dynamic_formatted(config):
+    """Test that formatting works for dynamic variables"""
+    parsed_config = (
+        config
+        | {
+            "string": "Hey {word!r}",
+            "three": "->{nested.pie:6.0f}<-",
+            "centered": "|{word:^12}|",
+        }
+    ).parse_dynamic()
+    assert parsed_config.centered == "|  platypus  |"
+    assert parsed_config.three == "->     3<-"
+    assert parsed_config.string == "Hey 'platypus'"
+
+
+def test_parse_dynamic_ignore(config):
+    """Test that parsing of dynamic variables ignores unknown replacements"""
+    parsed_config = (
+        config
+        | {
+            "animal": "{adjective} kangaroo",
+            "phrase": "one {nested.non_existent} dollar",
+        }
+    ).parse_dynamic()
+    assert parsed_config.animal == "{adjective} kangaroo"
+    assert parsed_config.phrase == "one {nested.non_existent} dollar"
