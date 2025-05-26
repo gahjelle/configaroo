@@ -1,8 +1,16 @@
 """Test base Configuration functionality"""
 
+from pathlib import Path
+
 import pytest
 
 from configaroo import Configuration
+
+
+@pytest.fixture
+def file_path():
+    """The path to the current file"""
+    return Path(__file__).resolve()
 
 
 def test_read_simple_values_as_attributes(config):
@@ -93,10 +101,10 @@ def test_contains_with_dotted_key(config):
     assert "nested.number" not in config
 
 
-def test_parse_dynamic_default(config):
+def test_parse_dynamic_default(config, file_path):
     """Test parsing of default dynamic variables"""
     parsed_config = (config | {"diameter": "2 x {nested.pie}"}).parse_dynamic()
-    assert parsed_config.paths.dynamic == __file__
+    assert parsed_config.paths.dynamic == str(file_path)
     assert parsed_config.phrase == "The meaning of life is 42"
     assert parsed_config.diameter == "2 x 3.14"
 
@@ -106,7 +114,7 @@ def test_parse_dynamic_extra(config):
     parsed_config = (config | {"animal": "{adjective} kangaroo"}).parse_dynamic(
         extra={"number": 14, "adjective": "bouncy"}
     )
-    assert parsed_config.paths.dynamic == __file__
+    assert parsed_config.paths.dynamic == str(file_path)
     assert parsed_config.phrase == "The meaning of life is 14"
     assert parsed_config.animal == "bouncy kangaroo"
 
@@ -139,12 +147,9 @@ def test_parse_dynamic_ignore(config):
     assert parsed_config.phrase == "one {nested.non_existent} dollar"
 
 
-def test_gha_runner():
+def test_gha_runner(file_path):
     """Check the GitHub Actions test runner"""
-    from pathlib import Path
-
-    path = Path(__file__).resolve()
-
+    path = file_path
     paths = [path]
     while path != path.parent:
         print(path)
