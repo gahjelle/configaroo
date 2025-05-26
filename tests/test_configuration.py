@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from configaroo import Configuration
+from configaroo import Configuration, configuration
 
 
 @pytest.fixture
@@ -104,6 +104,7 @@ def test_contains_with_dotted_key(config):
 def test_parse_dynamic_default(config, file_path):
     """Test parsing of default dynamic variables"""
     parsed_config = (config | {"diameter": "2 x {nested.pie}"}).parse_dynamic()
+    print("pyproject.toml dir: ", configuration._find_pyproject_toml(file_path))
     assert parsed_config.paths.dynamic == str(file_path)
     assert parsed_config.phrase == "The meaning of life is 42"
     assert parsed_config.diameter == "2 x 3.14"
@@ -150,7 +151,7 @@ def test_parse_dynamic_ignore(config):
 def test_gha_runner(file_path):
     """Check the GitHub Actions test runner"""
     path = file_path
-    paths = [path]
+    paths = []
     while path != path.parent:
         print(path)
         path = path.parent
