@@ -149,13 +149,20 @@ def test_parse_dynamic_ignore(config):
     assert parsed_config.phrase == "one {nested.non_existent} dollar"
 
 
-def test_gha_runner(file_path):
-    """Check the GitHub Actions test runner"""
-    path = file_path
-    paths = []
-    while path != path.parent:
-        print(path)
-        path = path.parent
-        paths.append(path)
+def test_find_pyproject_toml():
+    """Test that the pyproject.toml file can be located"""
+    assert configuration._find_pyproject_toml() == Path(__file__).parent.parent
 
-    assert paths == list(Path(__file__).resolve().parents)
+
+def test_find_foreign_caller():
+    """Test that a foreign caller (outside of configaroo) can be identified"""
+    assert configuration._get_foreign_path() == Path(__file__)
+
+
+def test_incomplete_formatter():
+    """Test that the incomplete formatter can handle fields that aren't replaced"""
+    formatted = configuration._incomplete_format(
+        "{number:5.1f} {non_existent} {string!r} {name}",
+        {"number": 3.14, "string": "platypus", "name": "Geir Arne"},
+    )
+    assert formatted == "  3.1 {non_existent} 'platypus' Geir Arne"

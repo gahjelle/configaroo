@@ -1,5 +1,6 @@
 """A dict-like configuration with support for envvars, validation and type conversion"""
 
+import inspect
 import os
 import re
 from collections import UserDict
@@ -119,7 +120,7 @@ class Configuration(UserDict):
         cls = type(self)
         variables = (
             self.to_flat_dict()
-            | {"project_path": _find_pyproject_toml(Path(__file__))}
+            | {"project_path": _find_pyproject_toml()}
             | ({} if extra is None else extra)
         )
         return cls(
@@ -171,18 +172,33 @@ class Configuration(UserDict):
         }
 
 
-def _find_pyproject_toml(path: Path, _file_name: str = "pyproject.toml") -> Path:
+def _find_pyproject_toml(
+    path: Path | None = None, _file_name: str = "pyproject.toml"
+) -> Path:
     """Find a directory that contains a pyproject.toml file.
 
     This searches the given directory and all direct parents. If a
     pyproject.toml file isn't found, then the root of the file system is
     returned.
     """
-    print("fpt", f"{path = }")
+    path = _get_foreign_path() if path is None else path
     if (path / _file_name).exists() or path == path.parent:
         return path.resolve()
     else:
         return _find_pyproject_toml(path.parent, _file_name=_file_name)
+
+
+def _get_foreign_path() -> Path:
+    """Find the path to the library that called this package.
+
+    Search the call stack for the first source code file outside of configaroo.
+    """
+    self_prefix = Path(__file__).parent.parent
+    return next(
+        path
+        for frame in inspect.stack()
+        if not (path := Path(frame.filename)).is_relative_to(self_prefix)
+    )
 
 
 def _incomplete_format(text: str, replacers: dict[str, Any]) -> str:
