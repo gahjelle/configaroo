@@ -105,12 +105,13 @@ def test_parse_dynamic_default(config, file_path):
     """Test parsing of default dynamic variables"""
     parsed_config = (config | {"diameter": "2 x {nested.pie}"}).parse_dynamic()
     print("pyproject.toml dir: ", configuration._find_pyproject_toml(file_path))
+    print(f"{parsed_config.paths.dynamic = }")
     assert parsed_config.paths.dynamic == str(file_path)
     assert parsed_config.phrase == "The meaning of life is 42"
     assert parsed_config.diameter == "2 x 3.14"
 
 
-def test_parse_dynamic_extra(config):
+def test_parse_dynamic_extra(config, file_path):
     """Test parsing of extra dynamic variables"""
     parsed_config = (config | {"animal": "{adjective} kangaroo"}).parse_dynamic(
         extra={"number": 14, "adjective": "bouncy"}
@@ -157,5 +158,4 @@ def test_gha_runner(file_path):
         path = path.parent
         paths.append(path)
 
-    assert paths == Path(__file__).resolve().parents
-    assert False
+    assert paths == list(Path(__file__).resolve().parents)
