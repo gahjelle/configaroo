@@ -179,7 +179,7 @@ def _find_pyproject_toml(path: Path, _file_name: str = "pyproject.toml") -> Path
     returned.
     """
     if (path / _file_name).exists() or path == path.parent:
-        return path
+        return path.resolve()
     else:
         return _find_pyproject_toml(path.parent, _file_name=_file_name)
 
