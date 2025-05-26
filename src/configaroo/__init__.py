@@ -7,4 +7,4 @@ from configaroo.exceptions import (  # noqa
     UnsupportedLoaderError,
 )
 
-__version__ = "0.1.0"
+__version__ = "0.1.1"
