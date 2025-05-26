@@ -1,0 +1,1 @@
+{"number": 42, "word": "platypus", "phrase": "The meaning of life is {number}", "things": ["house", "car", "kayak"], "nested": {"pie": 3.14, "seven": 7, "deep": {"sea": "Marianer"}}, "with_dot": {"org.num": 1234}, "paths": {"relative": "src/configaroo/configuration.py", "dynamic": "{project_path}/tests/test_configuration.py", "absolute": "/home/configaroo"}}
