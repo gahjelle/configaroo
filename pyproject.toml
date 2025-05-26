@@ -36,10 +36,7 @@ issues    = "https://github.com/gahjelle/configaroo/issues"
 changelog = "https://github.com/gahjelle/configaroo/blob/main/CHANGELOG.md"
 
 [dependency-groups]
-build = [
-    "build>=1.2.2.post1",
-    "twine>=6.1.0",
-]
+build = ["build>=1.2.2.post1", "twine>=6.1.0"]
 dev = [
     "bumpver>=2024.1130",
     "ipython>=8.36.0",
@@ -53,14 +50,14 @@ dev = [
 version = { attr = "configaroo.__version__" }
 
 [tool.bumpver]
-current_version = "0.1.0"
-version_pattern = "MAJOR.MINOR.PATCH"
+current_version = "v0.1.0"
+version_pattern = "vMAJOR.MINOR.PATCH"
 commit_message  = "bump version {old_version} -> {new_version}"
-tag_message     = "v{new_version}"
+tag_message     = "{new_version}"
 commit          = true
 tag             = true
 push            = false
 
 [tool.bumpver.file_patterns]
 "pyproject.toml"             = ['current_version = "{version}"']
-"src/configaroo/__init__.py" = ['__version__ = "{version}"']
+"src/configaroo/__init__.py" = ['__version__ = "MAJOR.MINOR.PATCH"']
