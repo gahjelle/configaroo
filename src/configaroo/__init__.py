@@ -6,3 +6,5 @@ from configaroo.exceptions import (  # noqa
     MissingEnvironmentVariableError,
     UnsupportedLoaderError,
 )
+
+__version__ = "0.1.0"
