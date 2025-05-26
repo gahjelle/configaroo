@@ -137,3 +137,19 @@ def test_parse_dynamic_ignore(config):
     ).parse_dynamic()
     assert parsed_config.animal == "{adjective} kangaroo"
     assert parsed_config.phrase == "one {nested.non_existent} dollar"
+
+
+def test_gha_runner():
+    """Check the GitHub Actions test runner"""
+    from pathlib import Path
+
+    path = Path(__file__).resolve()
+
+    paths = [path]
+    while path != path.parent:
+        print(path)
+        path = path.parent
+        paths.append(path)
+
+    assert paths == Path(__file__).resolve().parents
+    assert False
