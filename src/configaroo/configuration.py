@@ -178,6 +178,7 @@ def _find_pyproject_toml(path: Path, _file_name: str = "pyproject.toml") -> Path
     pyproject.toml file isn't found, then the root of the file system is
     returned.
     """
+    print("fpt", f"{path = }")
     if (path / _file_name).exists() or path == path.parent:
         return path.resolve()
     else:
