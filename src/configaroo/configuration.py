@@ -5,12 +5,14 @@ import os
 import re
 from collections import UserDict
 from pathlib import Path
-from typing import Any, Self, Type
+from typing import Any, Self, Type, TypeVar
 
 from pydantic import BaseModel
 
 from configaroo import loaders
 from configaroo.exceptions import MissingEnvironmentVariableError
+
+ModelT = TypeVar("ModelT", bound=BaseModel)
 
 
 class Configuration(UserDict):
@@ -24,12 +26,11 @@ class Configuration(UserDict):
         envs: dict[str, str] | None = None,
         env_prefix: str = "",
         extra_dynamic: dict[str, Any] | None = None,
-        model: Type[BaseModel] | None = None,
     ) -> Self:
         """Read a Configuration from a file"""
         config_dict = loaders.from_file(file_path, loader=loader)
         return cls(config_dict).initialize(
-            envs=envs, env_prefix=env_prefix, extra_dynamic=extra_dynamic, model=model
+            envs=envs, env_prefix=env_prefix, extra_dynamic=extra_dynamic
         )
 
     def initialize(
@@ -37,18 +38,17 @@ class Configuration(UserDict):
         envs: dict[str, str] | None = None,
         env_prefix: str = "",
         extra_dynamic: dict[str, Any] | None = None,
-        model: Type[BaseModel] | None = None,
     ) -> Self:
         """Initialize a configuration.
 
-        The initialization adds environment variables, parses dynamic values,
-        validates against a Pydantic model, and converts value types using the
-        same model.
+        The initialization adds environment variables and parses dynamic values.
         """
         self = self if envs is None else self.add_envs(envs, prefix=env_prefix)
-        self = self.parse_dynamic(extra_dynamic)
-        self = self if model is None else self.validate(model).convert(model)
-        return self
+        return self.parse_dynamic(extra_dynamic)
+
+    def with_model(self, model: Type[ModelT]) -> ModelT:
+        """Apply a pydantic model to a configuration."""
+        return self.validate_model(model).convert_model(model)
 
     def __getitem__(self, key: str) -> Any:
         """Make sure nested sections have type Configuration"""
@@ -129,15 +129,14 @@ class Configuration(UserDict):
             }
         )
 
-    def validate(self, model: Type[BaseModel]) -> Self:
+    def validate_model(self, model: Type[BaseModel]) -> Self:
         """Validate the configuration against the given model."""
         model.model_validate(self.data)
         return self
 
-    def convert(self, model: Type[BaseModel]) -> Self:
+    def convert_model(self, model: Type[ModelT]) -> ModelT:
         """Convert data types to match the given model"""
-        cls = type(self)
-        return cls(model(**self.data).model_dump())
+        return model(**self.data)
 
     def to_dict(self) -> dict[str, Any]:
         """Dump the configuration into a Python dictionary"""

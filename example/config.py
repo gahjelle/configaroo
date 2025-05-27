@@ -14,7 +14,6 @@ from configaroo import Configuration
 
 class PlayerConfig(BaseModel):
     color: str
-    name: str
 
 
 class UserConfig(BaseModel):
@@ -42,8 +41,8 @@ class ConfigModel(BaseModel):
 config = Configuration.from_file(
     Path(__file__).parent / "settings.toml",
     envs={"EXAMPLE_SECRET": "server.secret", "BOARD_SIZE": "constant.board_size"},
-    model=ConfigModel,
-)
+).with_model(model=ConfigModel)
+
 
 if __name__ == "__main__":
     print(config)
