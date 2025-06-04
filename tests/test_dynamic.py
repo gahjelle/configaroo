@@ -4,8 +4,6 @@ from pathlib import Path
 
 import pytest
 
-from configaroo import configuration
-
 
 @pytest.fixture
 def file_path():
@@ -16,8 +14,6 @@ def file_path():
 def test_parse_dynamic_default(config, file_path):
     """Test parsing of default dynamic variables"""
     parsed_config = (config | {"diameter": "2 x {nested.pie}"}).parse_dynamic()
-    print("pyproject.toml dir: ", configuration._find_pyproject_toml(file_path))
-    print(f"{parsed_config.paths.dynamic = }")
     assert parsed_config.paths.dynamic == str(file_path)
     assert parsed_config.phrase == "The meaning of life is 42"
     assert parsed_config.diameter == "2 x 3.14"
@@ -59,6 +55,12 @@ def test_parse_dynamic_ignore(config):
     ).parse_dynamic()
     assert parsed_config.animal == "{adjective} kangaroo"
     assert parsed_config.phrase == "one {nested.non_existent} dollar"
+
+
+def test_parse_dynamic_nested(config, file_path):
+    """Test that parsing dynamic variables referring to other dynamic variables work"""
+    parsed_config = config.parse_dynamic()
+    assert parsed_config.paths.nested == str(file_path)
 
 
 def test_parse_dynamic_only_full_name(config):
