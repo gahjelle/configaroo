@@ -14,10 +14,14 @@ seven = 7
 [nested.deep]
 sea = "Marianer"
 
+[log]
+level = "info"
+format = "<level>{level:<8} {message}</level>"
+
 [with_dot]
 "org.num" = 1234
 
 [paths]
 relative = "src/configaroo/configuration.py"
-dynamic = "{project_path}/tests/test_configuration.py"
+dynamic = "{project_path}/tests/test_dynamic.py"
 absolute = "/home/configaroo"
