@@ -40,6 +40,8 @@ class PathsSchema(StrictSchema):
     relative: Path
     dynamic: Path
     absolute: Path
+    directory: Path
+    nested: Path
 
 
 class ConfigSchema(StrictSchema):
@@ -74,6 +76,8 @@ def config() -> Configuration:
             relative="src/configaroo/configuration.py",
             dynamic="{project_path}/tests/test_dynamic.py",
             absolute="/home/configaroo",
+            directory="{project_path}/tests",
+            nested="{paths.directory}/test_dynamic.py",
         ),
     )
 
@@ -99,16 +103,16 @@ def other_toml_path(base_path, config) -> Path:
 @pytest.fixture
 def json_path(base_path, config) -> Path:
     """A path to a JSON file representing the configuration"""
-    return write_file(base_path / "files" / "config.json", json, config)
+    return write_file(base_path / "files" / "config.json", json, config, indent=4)
 
 
 @pytest.fixture
 def other_json_path(base_path, config) -> Path:
     """A path to a JSON file representing the configuration"""
-    return write_file(base_path / "files" / "jsonfile", json, config)
+    return write_file(base_path / "files" / "jsonfile", json, config, indent=4)
 
 
-def write_file(path: Path, lib: ModuleType, config: Configuration) -> Path:
+def write_file(path: Path, lib: ModuleType, config: Configuration, **kwargs) -> Path:
     """Write a configuration to file. Return path for convenience"""
-    path.write_text(lib.dumps(config.to_dict()), encoding="utf-8")
+    path.write_text(lib.dumps(config.to_dict(), **kwargs), encoding="utf-8")
     return path

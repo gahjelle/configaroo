@@ -1,1 +1,31 @@
-{"number": 42, "word": "platypus", "phrase": "The meaning of life is {number}", "things": ["house", "car", "kayak"], "nested": {"pie": 3.14, "seven": 7, "deep": {"sea": "Marianer"}}, "log": {"level": "info", "format": "<level>{level:<8} {message}</level>"}, "with_dot": {"org.num": 1234}, "paths": {"relative": "src/configaroo/configuration.py", "dynamic": "{project_path}/tests/test_dynamic.py", "absolute": "/home/configaroo"}}
+{
+    "number": 42,
+    "word": "platypus",
+    "phrase": "The meaning of life is {number}",
+    "things": [
+        "house",
+        "car",
+        "kayak"
+    ],
+    "nested": {
+        "pie": 3.14,
+        "seven": 7,
+        "deep": {
+            "sea": "Marianer"
+        }
+    },
+    "log": {
+        "level": "info",
+        "format": "<level>{level:<8} {message}</level>"
+    },
+    "with_dot": {
+        "org.num": 1234
+    },
+    "paths": {
+        "relative": "src/configaroo/configuration.py",
+        "dynamic": "{project_path}/tests/test_dynamic.py",
+        "absolute": "/home/configaroo",
+        "directory": "{project_path}/tests",
+        "nested": "{paths.directory}/test_dynamic.py"
+    }
+}

@@ -53,3 +53,9 @@ def test_validate_and_convert(config, model):
     config_w_model = config.with_model(model)
     assert isinstance(config_w_model, pydantic.BaseModel)
     assert isinstance(config_w_model.paths.relative, Path)
+
+
+def test_convert_to_path(config, model):
+    paths_cfg = config.parse_dynamic().with_model(model).paths
+    assert isinstance(paths_cfg.relative, Path) and paths_cfg.relative.exists()
+    assert isinstance(paths_cfg.directory, Path) and paths_cfg.directory.is_dir()

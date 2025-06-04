@@ -118,7 +118,7 @@ class Configuration(UserDict):
             | {"project_path": _find_pyproject_toml()}
             | ({} if extra is None else extra)
         )
-        return cls(
+        parsed = cls(
             {
                 key: (
                     value.parse_dynamic(extra=variables, _include_self=False)
@@ -130,6 +130,10 @@ class Configuration(UserDict):
                 for key, value in self.items()
             }
         )
+        if parsed == self:
+            return parsed
+        # Continue parsing until no more replacements are made.
+        return parsed.parse_dynamic(extra=extra, _include_self=_include_self)
 
     def validate_model(self, model: Type[BaseModel]) -> Self:
         """Validate the configuration against the given model."""
