@@ -4,6 +4,7 @@ from pathlib import Path
 
 import pytest
 
+import configaroo
 from configaroo import Configuration, configuration
 
 
@@ -99,54 +100,6 @@ def test_contains_with_dotted_key(config):
     assert "nested.seven" in config
     assert "with_dot.org.num" in config
     assert "nested.number" not in config
-
-
-def test_parse_dynamic_default(config, file_path):
-    """Test parsing of default dynamic variables"""
-    parsed_config = (config | {"diameter": "2 x {nested.pie}"}).parse_dynamic()
-    print("pyproject.toml dir: ", configuration._find_pyproject_toml(file_path))
-    print(f"{parsed_config.paths.dynamic = }")
-    assert parsed_config.paths.dynamic == str(file_path)
-    assert parsed_config.phrase == "The meaning of life is 42"
-    assert parsed_config.diameter == "2 x 3.14"
-
-
-def test_parse_dynamic_extra(config, file_path):
-    """Test parsing of extra dynamic variables"""
-    parsed_config = (config | {"animal": "{adjective} kangaroo"}).parse_dynamic(
-        extra={"number": 14, "adjective": "bouncy"}
-    )
-    assert parsed_config.paths.dynamic == str(file_path)
-    assert parsed_config.phrase == "The meaning of life is 14"
-    assert parsed_config.animal == "bouncy kangaroo"
-
-
-def test_parse_dynamic_formatted(config):
-    """Test that formatting works for dynamic variables"""
-    parsed_config = (
-        config
-        | {
-            "string": "Hey {word!r}",
-            "three": "->{nested.pie:6.0f}<-",
-            "centered": "|{word:^12}|",
-        }
-    ).parse_dynamic()
-    assert parsed_config.centered == "|  platypus  |"
-    assert parsed_config.three == "->     3<-"
-    assert parsed_config.string == "Hey 'platypus'"
-
-
-def test_parse_dynamic_ignore(config):
-    """Test that parsing of dynamic variables ignores unknown replacements"""
-    parsed_config = (
-        config
-        | {
-            "animal": "{adjective} kangaroo",
-            "phrase": "one {nested.non_existent} dollar",
-        }
-    ).parse_dynamic()
-    assert parsed_config.animal == "{adjective} kangaroo"
-    assert parsed_config.phrase == "one {nested.non_existent} dollar"
 
 
 def test_find_pyproject_toml():

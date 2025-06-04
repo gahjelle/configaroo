@@ -108,18 +108,20 @@ class Configuration(UserDict):
                 )
         return self
 
-    def parse_dynamic(self, extra: dict[str, Any] | None = None) -> Self:
+    def parse_dynamic(
+        self, extra: dict[str, Any] | None = None, _include_self: bool = True
+    ) -> Self:
         """Parse dynamic values of the form {section.key}"""
         cls = type(self)
         variables = (
-            self.to_flat_dict()
+            (self.to_flat_dict() if _include_self else {})
             | {"project_path": _find_pyproject_toml()}
             | ({} if extra is None else extra)
         )
         return cls(
             {
                 key: (
-                    value.parse_dynamic(extra=variables)
+                    value.parse_dynamic(extra=variables, _include_self=False)
                     if isinstance(value, Configuration)
                     else _incomplete_format(value, variables)
                     if isinstance(value, str)

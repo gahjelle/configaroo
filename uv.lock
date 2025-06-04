@@ -671,11 +671,11 @@ wheels = [
 
 [[package]]
 name = "pyplugs"
-version = "0.5.1"
+version = "0.5.2"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/a8/1d/c6cb3836cd7521e5fd1beaa3e028b2a22a5250180d07765d87e1e66b7b1a/pyplugs-0.5.1.tar.gz", hash = "sha256:9aa3d387775be4719bf4034ef23dab63286aa07201c666c169ada2f72e289971", size = 8022, upload-time = "2025-05-26T22:04:39.475Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/dd/ea/37bd58860e6912eab77cf8123335351a5f38aa0460737b0040e97c1e7230/pyplugs-0.5.2.tar.gz", hash = "sha256:8467b4da9acd7746dcae12b6a232e5f099b10ea88b6669a11b55b7bb119a73a9", size = 8449, upload-time = "2025-05-27T12:54:13.517Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/0e/36/32cfc920cc112337483f0e2735c0985a1c18909bcb867009431069bd80e5/pyplugs-0.5.1-py3-none-any.whl", hash = "sha256:92fd674beda86dcdebdf7d0ad6b6ba34322d997e1c75ff2ca02ae5c551053d44", size = 6321, upload-time = "2025-05-26T22:04:37.633Z" },
+    { url = "https://files.pythonhosted.org/packages/90/2a/781b5282fb0161a92201176755ee56cd66a4aa1587148c0226eac5c435b2/pyplugs-0.5.2-py3-none-any.whl", hash = "sha256:2a2784b2805be2fada5b6681f208161ae5cbb8fc9c27dca5b9644158760ac106", size = 6473, upload-time = "2025-05-27T12:54:12.694Z" },
 ]
 
 [[package]]
