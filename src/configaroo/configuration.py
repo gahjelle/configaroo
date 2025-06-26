@@ -19,6 +19,19 @@ class Configuration(UserDict):
     """A Configuration is a dict-like structure with some conveniences"""
 
     @classmethod
+    def from_dict(cls, data: dict[str, Any] | UserDict[str, Any] | Self) -> Self:
+        """Construct a Configuration from a dictionary
+
+        The dictionary is referenced directly, a copy isn't made
+        """
+        configuration = cls()
+        if isinstance(data, UserDict | Configuration):
+            configuration.data = data.data
+        else:
+            configuration.data = data
+        return configuration
+
+    @classmethod
     def from_file(
         cls,
         file_path: str | Path,
@@ -54,7 +67,7 @@ class Configuration(UserDict):
         """Make sure nested sections have type Configuration"""
         value = self.data[key]
         if isinstance(value, dict | UserDict | Configuration):
-            return Configuration(value)
+            return Configuration.from_dict(value)
         else:
             return value
 
@@ -67,11 +80,11 @@ class Configuration(UserDict):
                 f"'{type(self).__name__}' has no attribute or key '{key}'"
             )
 
-    def __contains__(self, key: str) -> bool:
+    def __contains__(self, key: object) -> bool:
         """Add support for dotted keys"""
         if key in self.data:
             return True
-        prefix, _, rest = key.partition(".")
+        prefix, _, rest = str(key).partition(".")
         try:
             return rest in self[prefix]
         except KeyError:

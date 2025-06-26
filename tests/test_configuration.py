@@ -72,6 +72,24 @@ def test_update_preserves_type(config):
     assert isinstance(config, Configuration)
 
 
+def test_update_changes_values(config):
+    """Test that an update adds or changes values"""
+    updated_config = config | {"number": 14, "new": "brand new!"}
+    assert updated_config.number == 14
+    assert updated_config.new == "brand new!"
+
+    config.update({"number": 14, "new": "brand new!"})
+    assert config.number == 14
+    assert config.new == "brand new!"
+
+
+def test_update_nested_values(config):
+    """Test that a nested section can be updated"""
+    config.nested.deep.update({"sea": "Mjoesa", "depth": 456})
+    assert config.nested.deep.sea == "Mjoesa"
+    assert config.nested.deep.depth == 456
+
+
 def test_dump_to_dict(config):
     """Test that dumping to a dictionary unwraps nested sections"""
     config_dict = config.to_dict()
