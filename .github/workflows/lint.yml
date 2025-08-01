@@ -1,4 +1,4 @@
-name: Lint Configaroo with Ruff
+name: lint and format
 
 on:
   pull_request:
