@@ -1,4 +1,4 @@
-name: Test Configaroo with Pytest
+name: tests
 
 on:
   pull_request:
