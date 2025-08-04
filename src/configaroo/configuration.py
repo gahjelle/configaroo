@@ -222,7 +222,7 @@ def _print_dict_as_tree(
                 value,
                 indent=indent,
                 current_indent=current_indent + indent,
-                _print=print,
+                _print=_print,
             )
         else:
             _print(" " * current_indent + f"- {key}: {value!r}")
