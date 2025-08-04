@@ -1,6 +1,6 @@
 """Bouncy configuration handling"""
 
-from configaroo.configuration import Configuration
+from configaroo.configuration import Configuration, print_configuration
 from configaroo.exceptions import (
     ConfigarooException,
     MissingEnvironmentVariableError,
@@ -8,9 +8,10 @@ from configaroo.exceptions import (
 )
 
 __all__ = [
-    "Configuration",
     "ConfigarooException",
+    "Configuration",
     "MissingEnvironmentVariableError",
+    "print_configuration",
     "UnsupportedLoaderError",
 ]
 

@@ -142,4 +142,6 @@ def test_incomplete_formatter():
 def test_public_classes_are_exposed():
     """Test that the __all__ attribute exposes all public classes"""
     public_classes = [attr for attr in dir(configaroo) if "A" <= attr[:1] <= "Z"]
-    assert sorted(public_classes) == sorted(configaroo.__all__)
+    assert sorted(public_classes) == sorted(
+        cls for cls in configaroo.__all__ if "A" <= cls[:1] <= "Z"
+    )

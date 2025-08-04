@@ -3,60 +3,16 @@
 import json
 from pathlib import Path
 from types import ModuleType
-from typing import Type
 
-import pydantic
 import pytest
 import tomli_w
 
 from configaroo import Configuration
-
-
-# Configuration schema
-class StrictSchema(pydantic.BaseModel):
-    model_config = pydantic.ConfigDict(extra="forbid")
-
-
-class DeeplyNestedSchema(StrictSchema):
-    sea: str
-
-
-class NestedSchema(StrictSchema):
-    pie: float
-    seven: int
-    deep: DeeplyNestedSchema
-
-
-class LogSchema(StrictSchema):
-    level: str
-    format: str
-
-
-class WithDotSchema(StrictSchema):
-    org_num: int = pydantic.Field(alias="org.num")
-
-
-class PathsSchema(StrictSchema):
-    relative: Path
-    dynamic: Path
-    absolute: Path
-    directory: Path
-    nested: Path
-
-
-class ConfigSchema(StrictSchema):
-    number: int
-    word: str
-    phrase: str
-    things: list[str]
-    nested: NestedSchema
-    log: LogSchema
-    with_dot: WithDotSchema
-    paths: PathsSchema
+from tests.schema import ConfigSchema
 
 
 @pytest.fixture
-def model() -> Type[ConfigSchema]:
+def model() -> type[ConfigSchema]:
     """A schema for the test configuration"""
     return ConfigSchema
 
@@ -89,30 +45,32 @@ def base_path() -> Path:
 
 
 @pytest.fixture
-def toml_path(base_path, config) -> Path:
+def toml_path(base_path: Path, config: Configuration) -> Path:
     """A path to a TOML file representing the configuration"""
     return write_file(base_path / "files" / "config.toml", tomli_w, config)
 
 
 @pytest.fixture
-def other_toml_path(base_path, config) -> Path:
+def other_toml_path(base_path: Path, config: Configuration) -> Path:
     """An alternative path to a TOML file representing the configuration"""
     return write_file(base_path / "files" / "tomlfile", tomli_w, config)
 
 
 @pytest.fixture
-def json_path(base_path, config) -> Path:
+def json_path(base_path: Path, config: Configuration) -> Path:
     """A path to a JSON file representing the configuration"""
     return write_file(base_path / "files" / "config.json", json, config, indent=4)
 
 
 @pytest.fixture
-def other_json_path(base_path, config) -> Path:
+def other_json_path(base_path: Path, config: Configuration) -> Path:
     """A path to a JSON file representing the configuration"""
     return write_file(base_path / "files" / "jsonfile", json, config, indent=4)
 
 
-def write_file(path: Path, lib: ModuleType, config: Configuration, **kwargs) -> Path:
+def write_file(
+    path: Path, lib: ModuleType, config: Configuration, **kwargs: str | int
+) -> Path:
     """Write a configuration to file. Return path for convenience"""
     path.write_text(lib.dumps(config.to_dict(), **kwargs), encoding="utf-8")
     return path

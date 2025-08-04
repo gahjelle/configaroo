@@ -5,7 +5,7 @@ import os
 import re
 from collections import UserDict
 from pathlib import Path
-from typing import Any, Self, Type, TypeVar
+from typing import Any, Callable, Self, Type, TypeVar
 
 from pydantic import BaseModel
 
@@ -15,7 +15,7 @@ from configaroo.exceptions import MissingEnvironmentVariableError
 ModelT = TypeVar("ModelT", bound=BaseModel)
 
 
-class Configuration(UserDict):
+class Configuration(UserDict[str, Any]):
     """A Configuration is a dict-like structure with some conveniences"""
 
     @classmethod
@@ -181,6 +181,50 @@ class Configuration(UserDict):
                 self[nested_key].to_flat_dict(_prefix=f"{_prefix}{nested_key}.").items()
             )
         }
+
+
+def print_configuration(config: Configuration | BaseModel, indent: int = 4) -> None:
+    """Pretty print a configuration.
+
+    If rich is installed, then a rich console is used for the printing.
+    """
+    return _print_dict_as_tree(
+        config.model_dump() if isinstance(config, BaseModel) else config,
+        indent=indent,
+        print=_get_rich_print(),
+    )
+
+
+def _get_rich_print() -> Callable[[str], None]:
+    """Initialize a Rich console if Rich is installed, otherwise use built-in print."""
+    try:
+        from rich.console import Console
+
+        return Console().print
+    except ImportError:
+        import builtins
+
+        return builtins.print
+
+
+def _print_dict_as_tree(
+    data: dict[str, Any] | UserDict[str, Any] | Configuration,
+    indent: int = 4,
+    current_indent: int = 0,
+    print: Callable[[str], None] = print,
+) -> None:
+    """Print a nested dictionary as a tree."""
+    for key, value in data.items():
+        if isinstance(value, dict | UserDict | Configuration):
+            print(" " * current_indent + f"- {key}")
+            _print_dict_as_tree(
+                value,
+                indent=indent,
+                current_indent=current_indent + indent,
+                print=print,
+            )
+        else:
+            print(" " * current_indent + f"- {key}: {value!r}")
 
 
 def _find_pyproject_toml(
