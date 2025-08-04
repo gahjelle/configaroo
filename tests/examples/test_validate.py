@@ -1,3 +1,5 @@
+"""Test that the validate example works."""
+
 import os
 
 import pytest
@@ -9,12 +11,12 @@ from examples.validate import config
 @pytest.fixture
 def example_secret() -> str:
     """Ensure EXAMPLE_SECRET is set as an environment variable."""
-    example_secret = "hush-hush"
+    example_secret = "hush-hush"  # noqa: S105
     os.environ["EXAMPLE_SECRET"] = example_secret
     return example_secret
 
 
-def test_config_is_basemodel(example_secret: str) -> None:
+def test_config_is_basemodel(example_secret: str) -> None:  # noqa: ARG001
     """Test that the configuration has been converted into a proper BaseModel."""
     cfg = config.get_configuration()
     assert isinstance(cfg, BaseModel)

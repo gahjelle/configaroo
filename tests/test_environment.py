@@ -1,27 +1,28 @@
-"""Test handling of environment variables"""
+"""Test handling of environment variables."""
 
 import pytest
-from pytest import MonkeyPatch
 
 from configaroo import Configuration, MissingEnvironmentVariableError
 
 
-def test_add_one_env(config: Configuration, monkeypatch: MonkeyPatch) -> None:
-    """Test that we can add one environment variable in a new field"""
+def test_add_one_env(config: Configuration, monkeypatch: pytest.MonkeyPatch) -> None:
+    """Test that we can add one environment variable in a new field."""
     monkeypatch.setenv("WORD", "platypus")
     config_w_env = config.add_envs({"WORD": "nested.word"})
     assert config_w_env.nested.word == "platypus"
 
 
-def test_overwrite_one_env(config: Configuration, monkeypatch: MonkeyPatch) -> None:
-    """Test that we can overwrite a value with an environment value"""
+def test_overwrite_one_env(
+    config: Configuration, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Test that we can overwrite a value with an environment value."""
     monkeypatch.setenv("NEW_PATH", "files/config.json")
     config_w_env = config.add_envs({"NEW_PATH": "path"})
     assert config_w_env.path == "files/config.json"
 
 
-def test_several_envs(config: Configuration, monkeypatch: MonkeyPatch) -> None:
-    """Test that we can read several environment variables"""
+def test_several_envs(config: Configuration, monkeypatch: pytest.MonkeyPatch) -> None:
+    """Test that we can read several environment variables."""
     monkeypatch.setenv("WORD", "platypus")
     monkeypatch.setenv("NEW_PATH", "files/config.json")
     config_w_env = config.add_envs({"WORD": "nested.word", "NEW_PATH": "path"})
@@ -30,7 +31,7 @@ def test_several_envs(config: Configuration, monkeypatch: MonkeyPatch) -> None:
 
 
 def test_error_on_missing_env(config: Configuration) -> None:
-    """Test that a missing environment variable raises an error if the value is not set already"""
+    """Test that a missing environment variable raises an error."""
     with pytest.raises(KeyError):
         config.add_envs({"NON_EXISTENT": "non_existent"})
     with pytest.raises(MissingEnvironmentVariableError):
@@ -38,13 +39,13 @@ def test_error_on_missing_env(config: Configuration) -> None:
 
 
 def test_missing_env_ok_if_optional(config: Configuration) -> None:
-    """Test that a missing environment variable is ok if the value is already set"""
+    """Test that a missing environment variable is ok if the value is already set."""
     config_w_env = config.add_envs({"NON_EXISTENT": "number"})
     assert config_w_env.number == 42
 
 
-def test_env_prefix(config: Configuration, monkeypatch: MonkeyPatch) -> None:
-    """Test that a common prefix can be used for environment_variables"""
+def test_env_prefix(config: Configuration, monkeypatch: pytest.MonkeyPatch) -> None:
+    """Test that a common prefix can be used for environment_variables."""
     monkeypatch.setenv("EXAMPLE_NUMBER", "14")
     monkeypatch.setenv("EXAMPLE_WORD", "platypus")
     config_w_env = config.add_envs(

@@ -1,4 +1,4 @@
-"""Common fixtures and conveniences"""
+"""Common fixtures and conveniences."""
 
 import json
 from pathlib import Path
@@ -13,13 +13,13 @@ from tests.schema import ConfigSchema
 
 @pytest.fixture
 def model() -> type[ConfigSchema]:
-    """A schema for the test configuration"""
+    """Return a schema for the test configuration."""
     return ConfigSchema
 
 
 @pytest.fixture
 def config() -> Configuration:
-    """A test configuration"""
+    """Return a test configuration."""
     return Configuration(
         number=42,
         word="platypus",
@@ -40,37 +40,37 @@ def config() -> Configuration:
 
 @pytest.fixture
 def base_path() -> Path:
-    """The path to the testing directory"""
+    """Return the path to the testing directory."""
     return Path(__file__).parent
 
 
 @pytest.fixture
 def toml_path(base_path: Path, config: Configuration) -> Path:
-    """A path to a TOML file representing the configuration"""
+    """Return a path to a TOML file representing the configuration."""
     return write_file(base_path / "files" / "config.toml", tomli_w, config)
 
 
 @pytest.fixture
 def other_toml_path(base_path: Path, config: Configuration) -> Path:
-    """An alternative path to a TOML file representing the configuration"""
+    """Return an alternative path to a TOML file representing the configuration."""
     return write_file(base_path / "files" / "tomlfile", tomli_w, config)
 
 
 @pytest.fixture
 def json_path(base_path: Path, config: Configuration) -> Path:
-    """A path to a JSON file representing the configuration"""
+    """Return a path to a JSON file representing the configuration."""
     return write_file(base_path / "files" / "config.json", json, config, indent=4)
 
 
 @pytest.fixture
 def other_json_path(base_path: Path, config: Configuration) -> Path:
-    """A path to a JSON file representing the configuration"""
+    """Return a path to a JSON file representing the configuration."""
     return write_file(base_path / "files" / "jsonfile", json, config, indent=4)
 
 
 def write_file(
     path: Path, lib: ModuleType, config: Configuration, **kwargs: str | int
 ) -> Path:
-    """Write a configuration to file. Return path for convenience"""
+    """Write a configuration to file. Return path for convenience."""
     path.write_text(lib.dumps(config.to_dict(), **kwargs), encoding="utf-8")
     return path
