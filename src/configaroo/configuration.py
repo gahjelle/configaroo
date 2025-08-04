@@ -1,11 +1,12 @@
-"""A dict-like configuration with support for envvars, validation and type conversion"""
+"""A dict-like config with support for envvars, validation and type conversion."""
 
 import inspect
 import os
 import re
 from collections import UserDict
+from collections.abc import Callable
 from pathlib import Path
-from typing import Any, Callable, Self, Type, TypeVar
+from typing import Any, Self, TypeVar
 
 from pydantic import BaseModel
 
@@ -16,11 +17,11 @@ ModelT = TypeVar("ModelT", bound=BaseModel)
 
 
 class Configuration(UserDict[str, Any]):
-    """A Configuration is a dict-like structure with some conveniences"""
+    """A Configuration is a dict-like structure with some conveniences."""
 
     @classmethod
     def from_dict(cls, data: dict[str, Any] | UserDict[str, Any] | Self) -> Self:
-        """Construct a Configuration from a dictionary
+        """Construct a Configuration from a dictionary.
 
         The dictionary is referenced directly, a copy isn't made
         """
@@ -40,7 +41,7 @@ class Configuration(UserDict[str, Any]):
         env_prefix: str = "",
         extra_dynamic: dict[str, Any] | None = None,
     ) -> Self:
-        """Read a Configuration from a file"""
+        """Read a Configuration from a file."""
         config_dict = loaders.from_file(file_path, loader=loader)
         return cls(config_dict).initialize(
             envs=envs, env_prefix=env_prefix, extra_dynamic=extra_dynamic
@@ -56,32 +57,34 @@ class Configuration(UserDict[str, Any]):
 
         The initialization adds environment variables and parses dynamic values.
         """
-        self = self if envs is None else self.add_envs(envs, prefix=env_prefix)
+        self = self if envs is None else self.add_envs(envs, prefix=env_prefix)  # noqa: PLW0642
         return self.parse_dynamic(extra_dynamic)
 
-    def with_model(self, model: Type[ModelT]) -> ModelT:
+    def with_model(self, model: type[ModelT]) -> ModelT:
         """Apply a pydantic model to a configuration."""
         return self.validate_model(model).convert_model(model)
 
-    def __getitem__(self, key: str) -> Any:
-        """Make sure nested sections have type Configuration"""
+    def __getitem__(self, key: str) -> Any:  # noqa: ANN401
+        """Make sure nested sections have type Configuration."""
         value = self.data[key]
         if isinstance(value, dict | UserDict | Configuration):
             return Configuration.from_dict(value)
-        else:
-            return value
 
-    def __getattr__(self, key: str) -> Any:
-        """Create attribute access for config keys for convenience"""
+        return value
+
+    def __getattr__(self, key: str) -> Any:  # noqa: ANN401
+        """Create attribute access for config keys for convenience."""
         try:
             return self[key]
         except KeyError:
-            raise AttributeError(
-                f"'{type(self).__name__}' has no attribute or key '{key}'"
-            )
+            message = f"'{type(self).__name__}' has no attribute or key '{key}'"
+            raise AttributeError(message) from None
 
     def __contains__(self, key: object) -> bool:
-        """Add support for dotted keys"""
+        """Add support for dotted keys.
+
+        The type hint for key is object to match the UserDict class.
+        """
         if key in self.data:
             return True
         prefix, _, rest = str(key).partition(".")
@@ -90,8 +93,8 @@ class Configuration(UserDict[str, Any]):
         except KeyError:
             return False
 
-    def get(self, key: str, default: Any = None) -> Any:
-        """Allow dotted keys when using .get()"""
+    def get(self, key: str, default: Any = None) -> Any:  # noqa: ANN401
+        """Allow dotted keys when using .get()."""
         if key in self.data:
             return self[key]
 
@@ -101,8 +104,8 @@ class Configuration(UserDict[str, Any]):
         except KeyError:
             return default
 
-    def add(self, key: str, value: Any) -> Self:
-        """Add a value, allow dotted keys"""
+    def add(self, key: str, value: Any) -> Self:  # noqa: ANN401
+        """Add a value, allow dotted keys."""
         prefix, _, rest = key.partition(".")
         if not rest:
             return self | {key: value}
@@ -110,21 +113,19 @@ class Configuration(UserDict[str, Any]):
         return self | {prefix: cls(self.setdefault(prefix, {})).add(rest, value)}
 
     def add_envs(self, envs: dict[str, str], prefix: str = "") -> Self:
-        """Add environment variables to configuration"""
+        """Add environment variables to configuration."""
         for env, key in envs.items():
             env_key = f"{prefix}{env}"
             if env_value := os.getenv(env_key):
-                self = self.add(key, env_value)
+                self = self.add(key, env_value)  # noqa: PLW0642
             elif key not in self:
-                raise MissingEnvironmentVariableError(
-                    f"required environment variable '{env_key}' not found"
-                )
+                raise MissingEnvironmentVariableError(env_key)
         return self
 
     def parse_dynamic(
-        self, extra: dict[str, Any] | None = None, _include_self: bool = True
+        self, extra: dict[str, Any] | None = None, *, _include_self: bool = True
     ) -> Self:
-        """Parse dynamic values of the form {section.key}"""
+        """Parse dynamic values of the form {section.key}."""
         cls = type(self)
         variables = (
             (self.to_flat_dict() if _include_self else {})
@@ -148,17 +149,17 @@ class Configuration(UserDict[str, Any]):
         # Continue parsing until no more replacements are made.
         return parsed.parse_dynamic(extra=extra, _include_self=_include_self)
 
-    def validate_model(self, model: Type[BaseModel]) -> Self:
+    def validate_model(self, model: type[BaseModel]) -> Self:
         """Validate the configuration against the given model."""
         model.model_validate(self.data)
         return self
 
-    def convert_model(self, model: Type[ModelT]) -> ModelT:
-        """Convert data types to match the given model"""
+    def convert_model(self, model: type[ModelT]) -> ModelT:
+        """Convert data types to match the given model."""
         return model(**self.data)
 
     def to_dict(self) -> dict[str, Any]:
-        """Dump the configuration into a Python dictionary"""
+        """Dump the configuration into a Python dictionary."""
         return {
             key: value.to_dict() if isinstance(value, Configuration) else value
             for key, value in self.items()
@@ -191,18 +192,18 @@ def print_configuration(config: Configuration | BaseModel, indent: int = 4) -> N
     return _print_dict_as_tree(
         config.model_dump() if isinstance(config, BaseModel) else config,
         indent=indent,
-        print=_get_rich_print(),
+        _print=_get_rich_print(),
     )
 
 
 def _get_rich_print() -> Callable[[str], None]:
     """Initialize a Rich console if Rich is installed, otherwise use built-in print."""
     try:
-        from rich.console import Console
+        from rich.console import Console  # noqa: PLC0415
 
         return Console().print
     except ImportError:
-        import builtins
+        import builtins  # noqa: PLC0415
 
         return builtins.print
 
@@ -211,20 +212,20 @@ def _print_dict_as_tree(
     data: dict[str, Any] | UserDict[str, Any] | Configuration,
     indent: int = 4,
     current_indent: int = 0,
-    print: Callable[[str], None] = print,
+    _print: Callable[[str], None] = print,
 ) -> None:
     """Print a nested dictionary as a tree."""
     for key, value in data.items():
         if isinstance(value, dict | UserDict | Configuration):
-            print(" " * current_indent + f"- {key}")
+            _print(" " * current_indent + f"- {key}")
             _print_dict_as_tree(
                 value,
                 indent=indent,
                 current_indent=current_indent + indent,
-                print=print,
+                _print=print,
             )
         else:
-            print(" " * current_indent + f"- {key}: {value!r}")
+            _print(" " * current_indent + f"- {key}: {value!r}")
 
 
 def _find_pyproject_toml(
@@ -239,8 +240,8 @@ def _find_pyproject_toml(
     path = _get_foreign_path() if path is None else path
     if (path / _file_name).exists() or path == path.parent:
         return path.resolve()
-    else:
-        return _find_pyproject_toml(path.parent, _file_name=_file_name)
+
+    return _find_pyproject_toml(path.parent, _file_name=_file_name)
 
 
 def _get_foreign_path() -> Path:

@@ -1,4 +1,4 @@
-"""Loader for JSON-files"""
+"""Loader for JSON-files."""
 
 import json
 from pathlib import Path
@@ -13,7 +13,4 @@ def load(path: Path) -> dict[str, Any]:
 
     Enforce that the JSON is an array/dict.
     """
-    return {
-        key: value
-        for key, value in json.loads(path.read_text(encoding="utf-8")).items()
-    }
+    return dict(json.loads(path.read_text(encoding="utf-8")))

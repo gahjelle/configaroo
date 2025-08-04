@@ -13,13 +13,17 @@ PACKAGE = str(__package__)
 def load(loader: str, path: Path) -> dict[str, Any]:
     """Load a file using the given loader."""
     return pyplugs.call_typed(
-        PACKAGE, plugin=loader, func="load", path=path, _return_type=dict()
+        PACKAGE,
+        plugin=loader,
+        func="load",
+        path=path,
+        _return_type=dict(),  # noqa: C408
     )
 
 
 def loader_names() -> list[str]:
     """List names of available loaders."""
-    return pyplugs.names(PACKAGE)
+    return sorted(pyplugs.names(PACKAGE))
 
 
 def from_file(path: str | Path, loader: str | None = None) -> dict[str, Any]:
@@ -29,7 +33,4 @@ def from_file(path: str | Path, loader: str | None = None) -> dict[str, Any]:
     try:
         return load(loader, path=path)
     except pyplugs.UnknownPluginError:
-        raise UnsupportedLoaderError(
-            f"file type '{loader}' isn't supported. "
-            f"Use one of: {', '.join(loader_names())}"
-        ) from None
+        raise UnsupportedLoaderError(loader, loader_names()) from None
