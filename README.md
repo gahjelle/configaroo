@@ -1,7 +1,5 @@
 # Configaroo - Bouncy Configuration Handling
 
-Configaroo is a light configuration package for Python that offers the following features:
-
 [![Latest version](https://img.shields.io/pypi/v/configaroo.svg)](https://pypi.org/project/configaroo/)
 [![Python versions](https://img.shields.io/pypi/pyversions/configaroo.svg)](https://pypi.org/project/configaroo/)
 [![License](https://img.shields.io/pypi/l/configaroo.svg)](https://github.com/gahjelle/configaroo/blob/main/LICENSE)
@@ -9,6 +7,8 @@ Configaroo is a light configuration package for Python that offers the following
 [![Linted](https://github.com/gahjelle/configaroo/actions/workflows/lint.yml/badge.svg?branch=main)](https://github.com/gahjelle/configaroo/actions/workflows/lint.yml)
 [![Tested with Pytest](https://github.com/gahjelle/configaroo/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/gahjelle/configaroo/actions/workflows/test.yml)
 [![Type checked with mypy](https://img.shields.io/badge/type%20checked-mypy-green)](http://mypy-lang.org/)
+
+Configaroo is a light configuration package for Python that offers the following features:
 
 - Access configuration settings with dotted keys: `config.nested.key`
 - Use different configuration file formats, including TOML and JSON

@@ -7,32 +7,36 @@ setting by setting the BOARD_SIZE environment variable.
 
 from pathlib import Path
 
-from pydantic import BaseModel, ConfigDict, HttpUrl
+from pydantic import BaseModel, ConfigDict, HttpUrl, SecretStr
 
 from configaroo import Configuration
 
 
-class PlayerConfig(BaseModel):
+class ExactBaseModel(BaseModel):
+    """Enforce that models contain the exact fields listed."""
+
+    model_config = ConfigDict(extra="forbid")
+
+
+class PlayerConfig(ExactBaseModel):
     color: str
 
 
-class UserConfig(BaseModel):
+class UserConfig(ExactBaseModel):
     player_x: PlayerConfig
     player_o: PlayerConfig
 
 
-class ConstantConfig(BaseModel):
+class ConstantConfig(ExactBaseModel):
     board_size: int
 
 
-class ServerConfig(BaseModel):
+class ServerConfig(ExactBaseModel):
     url: HttpUrl
-    secret: str
+    secret: SecretStr
 
 
-class ConfigModel(BaseModel):
-    model_config = ConfigDict(extra="forbid")
-
+class ConfigModel(ExactBaseModel):
     user: UserConfig
     constant: ConstantConfig
     server: ServerConfig
