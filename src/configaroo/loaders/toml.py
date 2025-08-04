@@ -8,6 +8,6 @@ import pyplugs
 
 
 @pyplugs.register
-def load_toml_file(path: Path) -> dict[str, Any]:
+def load(path: Path) -> dict[str, Any]:
     """Read a TOML-file"""
     return tomllib.loads(path.read_text(encoding="utf-8"))
