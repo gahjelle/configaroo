@@ -9,7 +9,7 @@ from pathlib import Path
 
 from pydantic import BaseModel, ConfigDict, HttpUrl, SecretStr
 
-from configaroo import Configuration
+from configaroo import Configuration, print_configuration
 
 
 class ExactBaseModel(BaseModel):
@@ -42,7 +42,7 @@ class ConfigModel(ExactBaseModel):
     server: ServerConfig
 
 
-def get_configuration():
+def get_configuration() -> ConfigModel:
     """Read and validate the configuration."""
     return Configuration.from_file(
         Path(__file__).parent / "settings.toml",
@@ -51,4 +51,4 @@ def get_configuration():
 
 
 if __name__ == "__main__":
-    print(get_configuration())
+    print_configuration(get_configuration())
