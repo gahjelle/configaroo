@@ -42,11 +42,13 @@ class ConfigModel(ExactBaseModel):
     server: ServerConfig
 
 
-config = Configuration.from_file(
-    Path(__file__).parent / "settings.toml",
-    envs={"EXAMPLE_SECRET": "server.secret", "BOARD_SIZE": "constant.board_size"},
-).with_model(model=ConfigModel)
+def get_configuration():
+    """Read and validate the configuration."""
+    return Configuration.from_file(
+        Path(__file__).parent / "settings.toml",
+        envs={"EXAMPLE_SECRET": "server.secret", "BOARD_SIZE": "constant.board_size"},
+    ).with_model(model=ConfigModel)
 
 
 if __name__ == "__main__":
-    print(config)
+    print(get_configuration())
