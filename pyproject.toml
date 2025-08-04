@@ -25,7 +25,7 @@ classifiers = [
     "Topic :: Software Development :: Libraries :: Python Modules",
     "Typing :: Typed",
 ]
-dependencies = ["pydantic>=2.0", "pyplugs>=0.4.0"]
+dependencies = ["pydantic>=2.0", "pyplugs>=0.5.4"]
 dynamic = ["version"]
 
 [project.urls]

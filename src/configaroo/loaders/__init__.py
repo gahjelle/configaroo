@@ -7,8 +7,19 @@ import pyplugs
 
 from configaroo.exceptions import UnsupportedLoaderError
 
-load = pyplugs.call_factory(__package__)
-loader_names = pyplugs.names_factory(__package__)
+PACKAGE = str(__package__)
+
+
+def load(loader: str, path: Path) -> dict[str, Any]:
+    """Load a file using the given loader."""
+    return pyplugs.call_typed(
+        PACKAGE, plugin=loader, func="load", path=path, _return_type=dict()
+    )
+
+
+def loader_names() -> list[str]:
+    """List names of available loaders."""
+    return pyplugs.names(PACKAGE)
 
 
 def from_file(path: str | Path, loader: str | None = None) -> dict[str, Any]:

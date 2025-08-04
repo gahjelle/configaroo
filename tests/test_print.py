@@ -1,10 +1,12 @@
 """Test pretty printing of configurations."""
 
+from pytest import CaptureFixture
+
 from configaroo import Configuration, print_configuration
 from tests.schema import ConfigSchema
 
 
-def test_printing_of_config(capsys, config: Configuration) -> None:
+def test_printing_of_config(capsys: CaptureFixture[str], config: Configuration) -> None:
     """Test that a configuration can be printed."""
     print_configuration(config, indent=4)
     stdout = capsys.readouterr().out
@@ -16,7 +18,7 @@ def test_printing_of_config(capsys, config: Configuration) -> None:
     assert "    - pie: 3.14" in lines
 
 
-def test_indentation(capsys, config: Configuration) -> None:
+def test_indentation(capsys: CaptureFixture[str], config: Configuration) -> None:
     """Test that indentation can be controlled."""
     print_configuration(config, indent=7)
     stdout = capsys.readouterr().out
@@ -26,7 +28,7 @@ def test_indentation(capsys, config: Configuration) -> None:
 
 
 def test_printing_of_basemodel(
-    capsys, config: Configuration, model: type[ConfigSchema]
+    capsys: CaptureFixture[str], config: Configuration, model: type[ConfigSchema]
 ) -> None:
     """Test that a configuration converted into a BaseModel can be printed."""
     print_configuration(config.with_model(model))
@@ -39,7 +41,9 @@ def test_printing_of_basemodel(
     assert "    - pie: 3.14" in lines
 
 
-def test_printing_of_dynamic_values(capsys, config: Configuration) -> None:
+def test_printing_of_dynamic_values(
+    capsys: CaptureFixture[str], config: Configuration
+) -> None:
     """Test that interpolated values are printed correctly."""
     print_configuration(config.parse_dynamic({"message": "testing configaroo"}))
     stdout = capsys.readouterr().out
