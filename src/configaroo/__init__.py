@@ -15,4 +15,4 @@ __all__ = [
     "print_configuration",
 ]
 
-__version__ = "0.2.2"
+__version__ = "0.2.3"
