@@ -36,7 +36,7 @@ changelog = "https://github.com/gahjelle/configaroo/releases"
 
 [dependency-groups]
 build = ["build>=1.2.2.post1", "twine>=6.1.0"]
-ci = ["mypy>=1.17.1", "pytest>=8.4.1", "rich>=14.1.0", "ruff>=0.12.7"]
+ci = ["mypy>=1.17.1", "pytest>=8.4.1", "rich>=14.1.0", "ruff>=0.12.7", "tomli-w>=1.2.0"]
 dev = [
     { include-group = "ci" },
     { include-group = "test" },

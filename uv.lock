@@ -196,6 +196,7 @@ ci = [
     { name = "pytest" },
     { name = "rich" },
     { name = "ruff" },
+    { name = "tomli-w" },
 ]
 dev = [
     { name = "bumpver" },
@@ -230,6 +231,7 @@ ci = [
     { name = "pytest", specifier = ">=8.4.1" },
     { name = "rich", specifier = ">=14.1.0" },
     { name = "ruff", specifier = ">=0.12.7" },
+    { name = "tomli-w", specifier = ">=1.2.0" },
 ]
 dev = [
     { name = "bumpver", specifier = ">=2024.1130" },
