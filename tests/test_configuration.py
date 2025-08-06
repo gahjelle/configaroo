@@ -122,7 +122,7 @@ def test_contains_with_dotted_key(config: Configuration) -> None:
 
 def test_find_pyproject_toml() -> None:
     """Test that the pyproject.toml file can be located."""
-    assert configuration._find_pyproject_toml() == Path(__file__).parent.parent
+    assert configuration.find_pyproject_toml() == Path(__file__).parent.parent
 
 
 def test_find_foreign_caller() -> None:

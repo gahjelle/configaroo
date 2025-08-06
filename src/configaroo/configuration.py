@@ -129,7 +129,7 @@ class Configuration(UserDict[str, Any]):
         cls = type(self)
         variables = (
             (self.to_flat_dict() if _include_self else {})
-            | {"project_path": _find_pyproject_toml()}
+            | {"project_path": find_pyproject_toml()}
             | ({} if extra is None else extra)
         )
         parsed = cls(
@@ -228,7 +228,7 @@ def _print_dict_as_tree(
             _print(" " * current_indent + f"- {key}: {value!r}")
 
 
-def _find_pyproject_toml(
+def find_pyproject_toml(
     path: Path | None = None, _file_name: str = "pyproject.toml"
 ) -> Path:
     """Find a directory that contains a pyproject.toml file.
@@ -241,7 +241,7 @@ def _find_pyproject_toml(
     if (path / _file_name).exists() or path == path.parent:
         return path.resolve()
 
-    return _find_pyproject_toml(path.parent, _file_name=_file_name)
+    return find_pyproject_toml(path.parent, _file_name=_file_name)
 
 
 def _get_foreign_path() -> Path:
