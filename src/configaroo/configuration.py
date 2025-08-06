@@ -112,8 +112,22 @@ class Configuration(UserDict[str, Any]):
         cls = type(self)
         return self | {prefix: cls(self.setdefault(prefix, {})).add(rest, value)}
 
-    def add_envs(self, envs: dict[str, str], prefix: str = "") -> Self:
-        """Add environment variables to configuration."""
+    def add_envs(self, envs: dict[str, str] | None = None, prefix: str = "") -> Self:
+        """Add environment variables to configuration.
+
+        If you don't specify which environment variables to read, you'll
+        automatically add any that matches a top-level value of the
+        configuration.
+        """
+        if envs is None:
+            # Automatically add top-level configuration items
+            envs = {
+                re.sub(r"\W", "_", key).upper(): key
+                for key, value in self.data.items()
+                if isinstance(value, str | int | float)
+            }
+
+        # Read environment variables
         for env, key in envs.items():
             env_key = f"{prefix}{env}"
             if env_value := os.getenv(env_key):

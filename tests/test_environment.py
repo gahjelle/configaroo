@@ -45,7 +45,7 @@ def test_missing_env_ok_if_optional(config: Configuration) -> None:
 
 
 def test_env_prefix(config: Configuration, monkeypatch: pytest.MonkeyPatch) -> None:
-    """Test that a common prefix can be used for environment_variables."""
+    """Test that a common prefix can be used for environment variables."""
     monkeypatch.setenv("EXAMPLE_NUMBER", "14")
     monkeypatch.setenv("EXAMPLE_WORD", "platypus")
     config_w_env = config.add_envs(
@@ -53,3 +53,17 @@ def test_env_prefix(config: Configuration, monkeypatch: pytest.MonkeyPatch) -> N
     )
     assert config_w_env.number == "14"
     assert config_w_env.nested.word == "platypus"
+
+
+def test_env_automatic(config: Configuration, monkeypatch: pytest.MonkeyPatch) -> None:
+    """Test that top-level keys can be automatically filled by env variables."""
+    monkeypatch.setenv("NUMBER", "28")
+    monkeypatch.setenv("WORD", "kangaroo")
+    monkeypatch.setenv("A_B_D_KEY_", "works")
+    monkeypatch.setenv("NESTED", "should not be replaced")
+    config_w_env = (config | {"A b@d-key!": ""}).add_envs()
+
+    assert config_w_env.number == "28"
+    assert config_w_env.word == "kangaroo"
+    assert config_w_env["A b@d-key!"] == "works"
+    assert config_w_env.nested != "should not be replaced"
