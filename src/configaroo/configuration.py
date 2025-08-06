@@ -210,7 +210,7 @@ def print_configuration(config: Configuration | BaseModel, indent: int = 4) -> N
     )
 
 
-def _get_rich_print() -> Callable[[str], None]:
+def _get_rich_print() -> Callable[[str], None]:  # pragma: no cover
     """Initialize a Rich console if Rich is installed, otherwise use built-in print."""
     try:
         from rich.console import Console  # noqa: PLC0415

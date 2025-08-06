@@ -64,6 +64,12 @@ def test_get_nested_values(config: Configuration) -> None:
     assert config.get("with_dot.org.num") == 1234
 
 
+def test_get_with_default(config: Configuration) -> None:
+    """Test that .get() falls back on default if the key doesn't exist."""
+    assert config.get("word", default="kangaroo") == "platypus"
+    assert config.get("another word", default="kangaroo") == "kangaroo"
+
+
 def test_update_preserves_type(config: Configuration) -> None:
     """Test that an update operation gives a Configuration."""
     assert isinstance(config | {"new": 1}, Configuration)
