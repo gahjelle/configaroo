@@ -33,16 +33,25 @@ class Configuration(UserDict[str, Any]):
         return configuration
 
     @classmethod
-    def from_file(
+    def from_file(  # noqa: PLR0913
         cls,
         file_path: str | Path,
+        *,
         loader: str | None = None,
+        not_exist_ok: bool = False,
         envs: dict[str, str] | None = None,
         env_prefix: str = "",
         extra_dynamic: dict[str, Any] | None = None,
     ) -> Self:
-        """Read a Configuration from a file."""
-        config_dict = loaders.from_file(file_path, loader=loader)
+        """Read a Configuration from a file.
+
+        If not_exist_ok is True, then a missing file returns an empty
+        configuration. This may be useful if the configuration is potentially
+        populated by environment variables.
+        """
+        config_dict = loaders.from_file(
+            file_path, loader=loader, not_exist_ok=not_exist_ok
+        )
         return cls(config_dict).initialize(
             envs=envs, env_prefix=env_prefix, extra_dynamic=extra_dynamic
         )

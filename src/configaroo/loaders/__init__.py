@@ -26,9 +26,14 @@ def loader_names() -> list[str]:
     return sorted(pyplugs.names(PACKAGE))
 
 
-def from_file(path: str | Path, loader: str | None = None) -> dict[str, Any]:
+def from_file(
+    path: str | Path, *, loader: str | None = None, not_exist_ok: bool = False
+) -> dict[str, Any]:
     """Load a file using a loader defined by the suffix if necessary."""
     path = Path(path)
+    if not path.exists() and not_exist_ok:
+        return {}
+
     loader = path.suffix.lstrip(".") if loader is None else loader
     try:
         return load(loader, path=path)
