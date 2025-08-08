@@ -208,9 +208,7 @@ def _get_rich_print() -> Callable[[str], None]:  # pragma: no cover
 
         return Console().print
     except ImportError:
-        import builtins  # noqa: PLC0415
-
-        return builtins.print
+        return print
 
 
 def _print_dict_as_tree(
