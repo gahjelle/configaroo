@@ -24,7 +24,7 @@ repos:
     rev: v1.17.1
     hooks:
       - id: mypy
-        additional_dependencies: [pydantic>=2.0, pyplugs>=0.5.4 , pytest>=8.4.1, rich>=14.1.0]
+        additional_dependencies: [pydantic>=2.0, pyplugs>=0.5.4 , pytest>=8.4.1, rich>=14.1.0, tomli-w>=1.2.0]
 
   - repo: https://github.com/rhysd/actionlint
     rev: v1.7.7

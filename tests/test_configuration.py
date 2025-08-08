@@ -8,12 +8,6 @@ import configaroo
 from configaroo import Configuration, configuration
 
 
-@pytest.fixture
-def file_path() -> Path:
-    """Return the path to the current file."""
-    return Path(__file__).resolve()
-
-
 def test_read_simple_values_as_attributes(config: Configuration) -> None:
     """Test attribute access for simple values."""
     assert config.number == 42
