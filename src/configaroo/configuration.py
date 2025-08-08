@@ -51,23 +51,6 @@ class Configuration(UserDict[str, Any]):
         )
         return cls(config_dict)
 
-    def initialize(
-        self,
-        envs: dict[str, str] | None = None,
-        env_prefix: str = "",
-        extra_dynamic: dict[str, Any] | None = None,
-    ) -> Self:
-        """Initialize a configuration.
-
-        The initialization adds environment variables and parses dynamic values.
-        """
-        self = self if envs is None else self.add_envs(envs, prefix=env_prefix)  # noqa: PLW0642
-        return self.parse_dynamic(extra_dynamic)
-
-    def with_model(self, model: type[ModelT]) -> ModelT:
-        """Apply a pydantic model to a configuration."""
-        return self.validate_model(model).convert_model(model)
-
     def __getitem__(self, key: str) -> Any:  # noqa: ANN401
         """Make sure nested sections have type Configuration."""
         value = self.data[key]
@@ -175,6 +158,10 @@ class Configuration(UserDict[str, Any]):
     def convert_model(self, model: type[ModelT]) -> ModelT:
         """Convert data types to match the given model."""
         return model(**self.data)
+
+    def with_model(self, model: type[ModelT]) -> ModelT:
+        """Apply a pydantic model to a configuration."""
+        return self.validate_model(model).convert_model(model)
 
     def to_dict(self) -> dict[str, Any]:
         """Dump the configuration into a Python dictionary."""
