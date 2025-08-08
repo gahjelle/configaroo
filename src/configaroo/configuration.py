@@ -36,33 +36,20 @@ class Configuration(UserDict[str, Any]):
     def from_file(
         cls,
         file_path: str | Path,
+        *,
         loader: str | None = None,
-        envs: dict[str, str] | None = None,
-        env_prefix: str = "",
-        extra_dynamic: dict[str, Any] | None = None,
+        not_exist_ok: bool = False,
     ) -> Self:
-        """Read a Configuration from a file."""
-        config_dict = loaders.from_file(file_path, loader=loader)
-        return cls(config_dict).initialize(
-            envs=envs, env_prefix=env_prefix, extra_dynamic=extra_dynamic
-        )
+        """Read a Configuration from a file.
 
-    def initialize(
-        self,
-        envs: dict[str, str] | None = None,
-        env_prefix: str = "",
-        extra_dynamic: dict[str, Any] | None = None,
-    ) -> Self:
-        """Initialize a configuration.
-
-        The initialization adds environment variables and parses dynamic values.
+        If not_exist_ok is True, then a missing file returns an empty
+        configuration. This may be useful if the configuration is potentially
+        populated by environment variables.
         """
-        self = self if envs is None else self.add_envs(envs, prefix=env_prefix)  # noqa: PLW0642
-        return self.parse_dynamic(extra_dynamic)
-
-    def with_model(self, model: type[ModelT]) -> ModelT:
-        """Apply a pydantic model to a configuration."""
-        return self.validate_model(model).convert_model(model)
+        config_dict = loaders.from_file(
+            file_path, loader=loader, not_exist_ok=not_exist_ok
+        )
+        return cls(config_dict)
 
     def __getitem__(self, key: str) -> Any:  # noqa: ANN401
         """Make sure nested sections have type Configuration."""
@@ -172,6 +159,10 @@ class Configuration(UserDict[str, Any]):
         """Convert data types to match the given model."""
         return model(**self.data)
 
+    def with_model(self, model: type[ModelT]) -> ModelT:
+        """Apply a pydantic model to a configuration."""
+        return self.validate_model(model).convert_model(model)
+
     def to_dict(self) -> dict[str, Any]:
         """Dump the configuration into a Python dictionary."""
         return {
@@ -217,9 +208,7 @@ def _get_rich_print() -> Callable[[str], None]:  # pragma: no cover
 
         return Console().print
     except ImportError:
-        import builtins  # noqa: PLC0415
-
-        return builtins.print
+        return print
 
 
 def _print_dict_as_tree(

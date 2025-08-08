@@ -2,13 +2,22 @@
 
 import json
 from pathlib import Path
-from types import ModuleType
 
 import pytest
 import tomli_w
 
 from configaroo import Configuration
 from tests.schema import ConfigSchema
+
+
+def toml_dumps(config: Configuration) -> str:
+    """Dump a configuration to a TOML string."""
+    return tomli_w.dumps(config.to_dict())
+
+
+def json_dumps(config: Configuration) -> str:
+    """Dump a configuration to a JSON string. Include a final newline."""
+    return json.dumps(config.to_dict(), indent=4) + "\n"
 
 
 @pytest.fixture
@@ -47,30 +56,28 @@ def base_path() -> Path:
 @pytest.fixture
 def toml_path(base_path: Path, config: Configuration) -> Path:
     """Return a path to a TOML file representing the configuration."""
-    return write_file(base_path / "files" / "config.toml", tomli_w, config)
+    return write_file(base_path / "files" / "config.toml", toml_dumps(config))
 
 
 @pytest.fixture
 def other_toml_path(base_path: Path, config: Configuration) -> Path:
     """Return an alternative path to a TOML file representing the configuration."""
-    return write_file(base_path / "files" / "tomlfile", tomli_w, config)
+    return write_file(base_path / "files" / "tomlfile", toml_dumps(config))
 
 
 @pytest.fixture
 def json_path(base_path: Path, config: Configuration) -> Path:
     """Return a path to a JSON file representing the configuration."""
-    return write_file(base_path / "files" / "config.json", json, config, indent=4)
+    return write_file(base_path / "files" / "config.json", json_dumps(config))
 
 
 @pytest.fixture
 def other_json_path(base_path: Path, config: Configuration) -> Path:
     """Return a path to a JSON file representing the configuration."""
-    return write_file(base_path / "files" / "jsonfile", json, config, indent=4)
+    return write_file(base_path / "files" / "jsonfile", json_dumps(config))
 
 
-def write_file(
-    path: Path, lib: ModuleType, config: Configuration, **kwargs: str | int
-) -> Path:
+def write_file(path: Path, text: str) -> Path:
     """Write a configuration to file. Return path for convenience."""
-    path.write_text(lib.dumps(config.to_dict(), **kwargs), encoding="utf-8")
+    path.write_text(text, encoding="utf-8")
     return path

@@ -38,6 +38,12 @@ def test_error_on_wrong_format(json_path: Path) -> None:
         Configuration.from_file(json_path, loader="toml")
 
 
+def test_file_may_be_allowed_to_not_exist() -> None:
+    """Test that not_exist_ok can suppress error when file doesn't exist."""
+    config = Configuration.from_file("non-existent.toml", not_exist_ok=True)
+    assert config.data == {}
+
+
 def test_can_read_toml_values(toml_path: Path) -> None:
     """Test that values can be accessed."""
     config = Configuration.from_file(toml_path)
