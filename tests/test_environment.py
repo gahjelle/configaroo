@@ -102,17 +102,20 @@ def test_env_from_model_w_custom_types(monkeypatch: pytest.MonkeyPatch) -> None:
         first_name: str
         age: int
         hush: SecretStr
+        countries: list[str]
 
     monkeypatch.setenv("TEST_FIRST_NAME", "Michael J.")
     monkeypatch.setenv("TEST_AGE", "47")
     monkeypatch.setenv("TEST_HUSH", "hush-hush")
+    monkeypatch.setenv("TEST_COUNTRIES", "England Australia Norway Spain")
 
     config_w_env = Configuration().add_envs_from_model(
-        TestModel, prefix="TEST_", types=str | SecretStr
+        TestModel, prefix="TEST_", types=str | SecretStr | list
     )
     assert config_w_env.first_name == "Michael J."
     assert config_w_env.hush == "hush-hush"
-    assert "age" not in config_w_env  # int is not specified as a type
+    assert config_w_env.countries.split() == ["England", "Australia", "Norway", "Spain"]
+    assert "age" not in config_w_env  # int is not specified as a type to include
 
 
 def test_env_from_model_raises_if_missing() -> None:

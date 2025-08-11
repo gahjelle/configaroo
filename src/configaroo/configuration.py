@@ -162,10 +162,22 @@ class Configuration(UserDict[str, Any]):
         Top level string, bool, integer, and float fields from the model are
         looked for among environment variables.
         """
+
+        def _get_class_from_annotation(annotation: type) -> type:
+            """Unpack generic annotations and return the underlying class."""
+            return (
+                _get_class_from_annotation(annotation.__origin__)
+                if hasattr(annotation, "__origin__")
+                else annotation
+            )
+
         envs = {
             re.sub(r"\W", "_", key).upper(): key
             for key, field in model.model_fields.items()
-            if field.annotation is not None and issubclass(field.annotation, types)
+            if (
+                field.annotation is not None
+                and issubclass(_get_class_from_annotation(field.annotation), types)
+            )
         }
         return self.add_envs(envs, prefix=prefix)
 
