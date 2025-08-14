@@ -1,6 +1,10 @@
 """Bouncy configuration handling."""
 
-from configaroo.configuration import Configuration, print_configuration
+from configaroo.configuration import (
+    Configuration,
+    find_pyproject_toml,
+    print_configuration,
+)
 from configaroo.exceptions import (
     ConfigarooError,
     MissingEnvironmentVariableError,
@@ -12,6 +16,7 @@ __all__ = [
     "Configuration",
     "MissingEnvironmentVariableError",
     "UnsupportedLoaderError",
+    "find_pyproject_toml",
     "print_configuration",
 ]
 
