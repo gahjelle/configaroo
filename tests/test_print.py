@@ -54,3 +54,43 @@ def test_printing_of_dynamic_values(
     assert "- number: 42" in lines
     assert "- phrase: 'The meaning of life is 42'" in lines
     assert "    - format: '<level>{level:<8} testing configaroo</level>'" in lines
+
+
+def test_printing_of_existing_section(
+    capsys: pytest.CaptureFixture[str], config: Configuration
+) -> None:
+    """Test that sections can be printed."""
+    print_configuration(config, section="paths")
+    stdout = capsys.readouterr().out
+    lines = stdout.splitlines()
+
+    assert "- absolute: '/home/configaroo'" in lines
+    assert "- number: 42" not in lines
+
+
+def test_printing_of_nonexisting_section(config: Configuration) -> None:
+    """Test that non-existing sections raise an error."""
+    with pytest.raises(KeyError):
+        print_configuration(config, section="nonexisting")
+
+
+def test_printing_of_values(
+    capsys: pytest.CaptureFixture[str], config: Configuration
+) -> None:
+    """Test that individual values can be printed."""
+    print_configuration(config, section="number")
+    stdout = capsys.readouterr().out
+    lines = stdout.splitlines()
+
+    assert lines == ["- number: 42"]
+
+
+def test_printing_of_nested_sections(
+    capsys: pytest.CaptureFixture[str], config: Configuration
+) -> None:
+    """Test that nested sections can be printed."""
+    print_configuration(config, section="nested.deep")
+    stdout = capsys.readouterr().out
+    lines = stdout.splitlines()
+
+    assert lines == ["- sea: 'Marianer'"]

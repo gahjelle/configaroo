@@ -220,16 +220,29 @@ class Configuration(UserDict[str, Any]):
         }
 
 
-def print_configuration(config: Configuration | BaseModel, indent: int = 4) -> None:
+def print_configuration(
+    config: Configuration | BaseModel, section: str | None = None, indent: int = 4
+) -> None:
     """Pretty print a configuration.
 
     If rich is installed, then a rich console is used for the printing.
     """
-    return _print_dict_as_tree(
-        config.model_dump() if isinstance(config, BaseModel) else config,
-        indent=indent,
-        _print=_get_rich_print(),
+    cfg = (
+        Configuration(config.model_dump()) if isinstance(config, BaseModel) else config
     )
+    if section is None:
+        return _print_dict_as_tree(cfg, indent=indent, _print=_get_rich_print())
+
+    cfg_section = cfg.get(section)
+    if cfg_section is None:
+        message = f"'{type(cfg).__name__}' has no section '{section}'"
+        raise KeyError(message) from None
+
+    if isinstance(cfg_section, Configuration):
+        return print_configuration(cfg_section, indent=indent)
+
+    *_, key = section.split(".")
+    return print_configuration(Configuration({key: cfg_section}), indent=indent)
 
 
 def _get_rich_print() -> Callable[[str], None]:  # pragma: no cover
