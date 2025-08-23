@@ -155,7 +155,7 @@ class Configuration(UserDict[str, Any]):
         self,
         model: type[BaseModel],
         prefix: str = "",
-        types: type | UnionType = str | bool | int | float,
+        types: type | UnionType = str | bool | int | float,  # pyright: ignore[reportArgumentType]
     ) -> Self:
         """Add environment variables to configuration based on the given model.
 

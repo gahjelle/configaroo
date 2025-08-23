@@ -36,13 +36,14 @@ changelog = "https://github.com/gahjelle/configaroo/releases"
 
 [dependency-groups]
 build = ["build>=1.2.2.post1", "twine>=6.1.0"]
-ci = ["mypy>=1.17.1", "pytest>=8.4.1", "rich>=14.1.0", "ruff>=0.12.7", "tomli-w>=1.2.0"]
+ci = ["pytest>=8.4.1", "rich>=14.1.0", "ruff>=0.12.7", "tomli-w>=1.2.0"]
 dev = [
     { include-group = "ci" },
     { include-group = "test" },
     "bumpver>=2024.1130",
     "ipython>=8.36.0",
     "pre-commit>=4.2.0",
+    "pyright>=1.1.404",
 ]
 test = ["pytest>=8.4.1", "pytest-cov>=6.2.1", "tomli-w>=1.2.0"]
 
@@ -74,9 +75,15 @@ ignore = [
 "tests/test_*.py" = ["PLR2004", "S101", "SLF001", "UP018"]
 "tests/*/test_*.py" = ["S101"]
 
-[tool.mypy]
-python_version = "3.11"
-strict = true
+[tool.pyright]
+pythonVersion = "3.11"
+typeCheckingMode = "strict"
+verboseOutput = false
+include = ["src/", "tests/", "examples/"]
+venv = ".venv"
+
+reportUnknownArgumentType = "none"
+reportUnknownMemberType = "none"
 
 [tool.bumpver]
 current_version = "v0.5.0"
