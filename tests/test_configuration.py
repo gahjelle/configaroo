@@ -127,12 +127,12 @@ def test_find_pyproject_toml() -> None:
 
 def test_find_foreign_caller() -> None:
     """Test that a foreign caller (outside of configaroo) can be identified."""
-    assert configuration._get_foreign_path() == Path(__file__)
+    assert configuration._get_foreign_path() == Path(__file__)  # pyright: ignore[reportPrivateUsage]
 
 
 def test_incomplete_formatter() -> None:
     """Test that the incomplete formatter can handle fields that aren't replaced."""
-    formatted = configuration._incomplete_format(
+    formatted = configuration._incomplete_format(  # pyright: ignore[reportPrivateUsage]
         "{number:5.1f} {non_existent} {string!r} {name}",
         {"number": 3.14, "string": "platypus", "name": "Geir Arne"},
     )
