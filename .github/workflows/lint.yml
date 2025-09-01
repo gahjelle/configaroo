@@ -32,6 +32,7 @@ jobs:
       - name: Run ruff format formatter
         run: |
           ruff format --diff src/ tests/ examples/
-      - uses: jakebailey/pyright-action@v2
+      - name: Run pyright type checker
+        uses: jakebailey/pyright-action@v2
         with:
           pylance-version: latest-release
