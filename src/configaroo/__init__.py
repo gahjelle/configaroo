@@ -20,4 +20,4 @@ __all__ = [
     "print_configuration",
 ]
 
-__version__ = "0.5.0"
+__version__ = "0.5.1"
