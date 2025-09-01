@@ -231,7 +231,8 @@ def print_configuration(
         Configuration(config.model_dump()) if isinstance(config, BaseModel) else config
     )
     if section is None:
-        return _print_dict_as_tree(cfg, indent=indent, _print=_get_rich_print())
+        _print, _escape = _get_rich_print()
+        return _print_dict_as_tree(cfg, indent=indent, _print=_print, _escape=_escape)
 
     cfg_section = cfg.get(section)
     if cfg_section is None:
@@ -245,14 +246,20 @@ def print_configuration(
     return print_configuration(Configuration({key: cfg_section}), indent=indent)
 
 
-def _get_rich_print() -> Callable[[str], None]:  # pragma: no cover
-    """Initialize a Rich console if Rich is installed, otherwise use built-in print."""
+def _get_rich_print() -> tuple[
+    Callable[[str], None], Callable[[str], str]
+]:  # pragma: no cover
+    """Initialize a Rich console if Rich is installed, otherwise use built-in print.
+
+    Include a function that can be used to escape markup.
+    """
     try:
         from rich.console import Console  # noqa: PLC0415
+        from rich.markup import escape  # noqa: PLC0415
 
-        return Console().print
+        return Console().print, escape
     except ImportError:
-        return print
+        return print, str
 
 
 def _print_dict_as_tree(
@@ -260,6 +267,7 @@ def _print_dict_as_tree(
     indent: int = 4,
     current_indent: int = 0,
     _print: Callable[[str], None] = print,
+    _escape: Callable[[str], str] = str,
 ) -> None:
     """Print a nested dictionary as a tree."""
     for key, value in data.items():
@@ -270,9 +278,11 @@ def _print_dict_as_tree(
                 indent=indent,
                 current_indent=current_indent + indent,
                 _print=_print,
+                _escape=_escape,
             )
         else:
-            _print(" " * current_indent + f"- {key}: {value!r}")
+            escaped_repr = _escape(repr(value))
+            _print(" " * current_indent + f"- {key}: {escaped_repr}")
 
 
 def find_pyproject_toml(

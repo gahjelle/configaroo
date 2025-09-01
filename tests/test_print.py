@@ -94,3 +94,9 @@ def test_printing_of_nested_sections(
     lines = stdout.splitlines()
 
     assert lines == ["- sea: 'Marianer'"]
+
+
+def test_printing_of_rich_markup() -> None:
+    """Test that a config value containing malformed Rich markup can be printed."""
+    config = Configuration({"markup": "[/]"})
+    print_configuration(config)

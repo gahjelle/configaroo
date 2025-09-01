@@ -192,7 +192,6 @@ build = [
     { name = "twine" },
 ]
 ci = [
-    { name = "pyright" },
     { name = "pytest" },
     { name = "rich" },
     { name = "ruff" },
@@ -227,7 +226,6 @@ build = [
     { name = "twine", specifier = ">=6.1.0" },
 ]
 ci = [
-    { name = "pyright", specifier = ">=1.1.404" },
     { name = "pytest", specifier = ">=8.4.1" },
     { name = "rich", specifier = ">=14.1.0" },
     { name = "ruff", specifier = ">=0.12.7" },
