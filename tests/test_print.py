@@ -100,3 +100,27 @@ def test_printing_of_rich_markup() -> None:
     """Test that a config value containing malformed Rich markup can be printed."""
     config = Configuration({"markup": "[/]"})
     print_configuration(config)
+
+
+def test_print_keeping_none(
+    capsys: pytest.CaptureFixture[str], config: Configuration
+) -> None:
+    """Test that None-values are kept in printout by default."""
+    print_configuration(config | {"none": None})
+    stdout = capsys.readouterr().out
+    lines = stdout.splitlines()
+
+    assert "- none: None" in lines
+    assert "- number: 42" in lines
+
+
+def test_print_skipping_none(
+    capsys: pytest.CaptureFixture[str], config: Configuration
+) -> None:
+    """Test that None-values are skipped in printout if asked for."""
+    print_configuration(config | {"none": None}, skip_none=True)
+    stdout = capsys.readouterr().out
+    lines = stdout.splitlines()
+
+    assert "- none: None" not in lines
+    assert "- number: 42" in lines
