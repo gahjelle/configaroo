@@ -287,6 +287,7 @@ def _print_dict_as_tree(
             _print(" " * current_indent + f"- {key}")
             _print_dict_as_tree(
                 value,
+                skip_none=skip_none,
                 indent=indent,
                 current_indent=current_indent + indent,
                 _print=_print,

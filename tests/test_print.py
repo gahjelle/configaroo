@@ -96,10 +96,13 @@ def test_printing_of_nested_sections(
     assert lines == ["- sea: 'Marianer'"]
 
 
-def test_printing_of_rich_markup() -> None:
+def test_printing_of_rich_markup(capsys: pytest.CaptureFixture[str]) -> None:
     """Test that a config value containing malformed Rich markup can be printed."""
     config = Configuration({"markup": "[/]"})
     print_configuration(config)
+    stdout = capsys.readouterr().out
+
+    assert stdout.strip() == "- markup: '[/]'"
 
 
 def test_print_keeping_none(
@@ -118,9 +121,12 @@ def test_print_skipping_none(
     capsys: pytest.CaptureFixture[str], config: Configuration
 ) -> None:
     """Test that None-values are skipped in printout if asked for."""
-    print_configuration(config | {"none": None}, skip_none=True)
+    config.update({"none": None})
+    config.nested.deep.update({"sea": "Mjoesa", "depth": None})
+    print_configuration(config, skip_none=True)
     stdout = capsys.readouterr().out
     lines = stdout.splitlines()
 
     assert "- none: None" not in lines
+    assert "        - depth: None" not in lines
     assert "- number: 42" in lines

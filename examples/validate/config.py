@@ -33,6 +33,7 @@ class ConstantConfig(ExactBaseModel):
 
 class ServerConfig(ExactBaseModel):
     url: HttpUrl
+    port: int | None = None
     secret: SecretStr
 
 
@@ -54,4 +55,4 @@ def get_configuration() -> ConfigModel:
 
 
 if __name__ == "__main__":
-    print_configuration(get_configuration())
+    print_configuration(get_configuration(), skip_none=True)
