@@ -221,7 +221,11 @@ class Configuration(UserDict[str, Any]):
 
 
 def print_configuration(
-    config: Configuration | BaseModel, section: str | None = None, indent: int = 4
+    config: Configuration | BaseModel,
+    section: str | None = None,
+    *,
+    skip_none: bool = False,
+    indent: int = 4,
 ) -> None:
     """Pretty print a configuration.
 
@@ -232,7 +236,9 @@ def print_configuration(
     )
     if section is None:
         _print, _escape = _get_rich_print()
-        return _print_dict_as_tree(cfg, indent=indent, _print=_print, _escape=_escape)
+        return _print_dict_as_tree(
+            cfg, skip_none=skip_none, indent=indent, _print=_print, _escape=_escape
+        )
 
     cfg_section = cfg.get(section)
     if cfg_section is None:
@@ -240,10 +246,12 @@ def print_configuration(
         raise KeyError(message) from None
 
     if isinstance(cfg_section, Configuration):
-        return print_configuration(cfg_section, indent=indent)
+        return print_configuration(cfg_section, skip_none=skip_none, indent=indent)
 
     *_, key = section.split(".")
-    return print_configuration(Configuration({key: cfg_section}), indent=indent)
+    return print_configuration(
+        Configuration({key: cfg_section}), skip_none=skip_none, indent=indent
+    )
 
 
 def _get_rich_print() -> tuple[
@@ -264,6 +272,8 @@ def _get_rich_print() -> tuple[
 
 def _print_dict_as_tree(
     data: dict[str, Any] | UserDict[str, Any] | Configuration,
+    *,
+    skip_none: bool = False,
     indent: int = 4,
     current_indent: int = 0,
     _print: Callable[[str], None] = print,
@@ -271,6 +281,8 @@ def _print_dict_as_tree(
 ) -> None:
     """Print a nested dictionary as a tree."""
     for key, value in data.items():
+        if skip_none and value is None:
+            continue
         if isinstance(value, dict | UserDict | Configuration):
             _print(" " * current_indent + f"- {key}")
             _print_dict_as_tree(
