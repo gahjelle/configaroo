@@ -109,9 +109,14 @@ class Configuration(UserDict[str, Any]):
     ) -> Self:
         """Parse dynamic values of the form {section.key}."""
         cls = type(self)
+        project_path = (
+            find_pyproject_toml()
+            if extra is None or "project_path" not in extra
+            else extra["project_path"]
+        )
         variables = (
             (self.to_flat_dict() if _include_self else {})
-            | {"project_path": find_pyproject_toml()}
+            | {"project_path": project_path}
             | ({} if extra is None else extra)
         )
         parsed = cls(
