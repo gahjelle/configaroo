@@ -139,6 +139,15 @@ def test_incomplete_formatter() -> None:
     assert formatted == "  3.1 {non_existent} 'platypus' Geir Arne"
 
 
+def test_incomplete_formatter_dashes() -> None:
+    """Test that the incomplete formatter handles field names with weird characters."""
+    formatted = configuration._incomplete_format(  # pyright: ignore[reportPrivateUsage]
+        "{first-name} {verb} {money$}",
+        {"first-name": "Geir Arne", "verb": "gets", "money$": "more"},
+    )
+    assert formatted == "Geir Arne gets more"
+
+
 def test_public_classes_are_exposed() -> None:
     """Test that the __all__ attribute exposes all public classes."""
     public_classes = [attr for attr in dir(configaroo) if "A" <= attr[:1] <= "Z"]
