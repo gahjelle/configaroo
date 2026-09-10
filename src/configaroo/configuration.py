@@ -16,9 +16,7 @@ from configaroo.exceptions import MissingEnvironmentVariableError
 
 ModelT = TypeVar("ModelT", bound=BaseModel)
 
-_DYNAMIC_FIELD = re.compile(
-    r"\{(?P<field>[A-Za-z_][\w.]*)(?P<conv>![ars])?(?P<fmt>:[^}]*)?\}"
-)
+_DYNAMIC_FIELD = re.compile(r"\{(?P<field>[^{}!:]+)(?P<conv>![ars])?(?P<fmt>:[^}]*)?\}")
 
 
 class Configuration(UserDict[str, Any]):
