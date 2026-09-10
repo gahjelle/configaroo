@@ -2,7 +2,6 @@
 requires = ["setuptools>=61"]
 build-backend = "setuptools.build_meta"
 
-
 [project]
 name = "configaroo"
 description = "Bouncy handling of configuration files"
@@ -47,10 +46,8 @@ dev = [
 ]
 test = ["pytest>=8.4.1", "pytest-cov>=6.2.1", "tomli-w>=1.2.0"]
 
-
 [tool.setuptools.dynamic]
 version = { attr = "configaroo.__version__" }
-
 
 [tool.ruff]
 target-version = "py311"
@@ -60,8 +57,10 @@ exclude = [".git", "venv", "migrations", "node_modules"]
 select = ["ALL"]
 ignore = [
     "COM812", # Trailing comma missing (handled by formatter)
-    "D203",   # Force blank line before class docstring (incompatible with D211)
-    "D213",   # Start docstring on second line (incompatible with D212)
+    "CPY001", # Missing copyright notice
+    "D203", # Force blank line before class docstring (incompatible with D211)
+    "D213", # Start docstring on second line (incompatible with D212)
+
 ]
 
 [tool.ruff.lint.per-file-ignores]
@@ -81,7 +80,6 @@ typeCheckingMode = "strict"
 verboseOutput = false
 include = ["src/", "tests/", "examples/"]
 venv = ".venv"
-
 reportUnknownArgumentType = "none"
 reportUnknownMemberType = "none"
 

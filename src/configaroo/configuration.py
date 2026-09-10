@@ -16,6 +16,10 @@ from configaroo.exceptions import MissingEnvironmentVariableError
 
 ModelT = TypeVar("ModelT", bound=BaseModel)
 
+_DYNAMIC_FIELD = re.compile(
+    r"\{(?P<field>[A-Za-z_][\w.]*)(?P<conv>![ars])?(?P<fmt>:[^}]*)?\}"
+)
+
 
 class Configuration(UserDict[str, Any]):
     """A Configuration is a dict-like structure with some conveniences."""
@@ -333,21 +337,13 @@ def _get_foreign_path() -> Path:
 
 
 def _incomplete_format(text: str, replacers: dict[str, Any]) -> str:
-    """Replace some, but not necessarily all format specifiers in a text string.
+    """Replace some, but not necessarily all format specifiers in a text string."""
 
-    Regular .format() raises an error if not all {replace} parameters are
-    supplied. Here, we only replace the given replace arguments and leave the
-    rest untouched.
-    """
-    dot = "__DOT__"  # Escape . in fields as they have special meaning in .format()
-    pattern = r"({{{word}(?:![ars])?(?:|:[^}}]*)}})"  # Match {word} or {word:...}
+    def replace(match: re.Match[str]) -> str:
+        field = match["field"]
+        if field not in replacers:
+            return match.group(0)  # Leave untouched
+        template = f"{{0{match['conv'] or ''}{match['fmt'] or ''}}}"
+        return template.format(replacers[field])
 
-    for word, replacement in replacers.items():
-        for match in re.findall(pattern.format(word=word), text):
-            # Split expression to only replace . in the field name
-            field, colon, fmt = match.partition(":")
-            replacer = f"{field.replace('.', dot)}{colon}{fmt}".format(
-                **{word.replace(".", dot): replacement}
-            )
-            text = text.replace(match, replacer)
-    return text
+    return _DYNAMIC_FIELD.sub(replace, text)
